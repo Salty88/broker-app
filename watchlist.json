@@ -1,0 +1,18 @@
+{
+  "werte": [
+    {
+      "isin": "BTC",
+      "name": "Bitcoin",
+      "ticker": "BTCUSDT",
+      "waehrung": "USD",
+      "boerse": "Binance (Kurs in USD)"
+    },
+    {
+      "isin": "ETH",
+      "name": "Ethereum",
+      "ticker": "ETHUSDT",
+      "waehrung": "USD",
+      "boerse": "Binance (Kurs in USD)"
+    }
+  ]
+}
