@@ -1,6 +1,10 @@
 name: BroKer aktualisieren
 
 on:
+  push:
+    # Nach dem Übernehmen eines Pull Requests sofort neu veröffentlichen
+    branches: [main]
+    paths: ["app/**", "broker/**", "watchlist.json", ".github/workflows/broker.yml"]
   schedule:
     # Täglich 07:30 UTC = 8:30 Uhr Winterzeit / 9:30 Uhr Sommerzeit in Berlin
     - cron: "30 7 * * *"
