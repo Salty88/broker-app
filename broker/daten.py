@@ -17,6 +17,8 @@ import pandas as pd
 
 import broker  # noqa: E402
 
+BASIS = Path(__file__).resolve().parent
+
 
 
 # Beispiel-Bausteine für eine breite Verteilung (ISIN geprüft, keine Empfehlung).
@@ -59,6 +61,7 @@ def zeile(w: dict, gruppe: str, rolle: str = "") -> tuple[dict, list[dict]]:
     }
     # Tagesänderung: gegenüber dem vorherigen Handelstag
     row["tag_pct"] = round(float(c.iloc[-1] / c.iloc[-2] - 1) * 100, 2)
+    row.update(kennzahlen(c, w["ticker"]))
     jahr = c.index[-1] - pd.Timedelta(days=365)
     verlauf = [{"isin": w["isin"], "datum": str(d.date()), "kurs": round(float(k), 4),
                 "sma200": None if pd.isna(s) else round(float(s), 4)}
@@ -66,15 +69,67 @@ def zeile(w: dict, gruppe: str, rolle: str = "") -> tuple[dict, list[dict]]:
     return row, verlauf
 
 
+def rendite_pa(c: pd.Series, jahre: int) -> float | None:
+    vorher = c[c.index <= c.index[-1] - pd.Timedelta(days=365 * jahre)]
+    if vorher.empty:
+        return None
+    return round(float((c.iloc[-1] / vorher.iloc[-1]) ** (1 / jahre) - 1) * 100, 1)
+
+
+def kennzahlen(c: pd.Series, ticker: str) -> dict:
+    """Schwankung und Rückgang der letzten 5 Jahre, Renditen, Historie, Risikoklasse."""
+    tpj = 365 if ticker.endswith("USDT") else 252
+    fuenf = c[c.index >= c.index[-1] - pd.Timedelta(days=5 * 365)]
+    vola = float(fuenf.pct_change().std() * (tpj ** 0.5) * 100)
+    dd = float((fuenf / fuenf.cummax() - 1).min() * 100)
+    klasse = ("sehr gering" if vola < 5 else "gering" if vola < 12 else "mittel" if vola < 20
+              else "hoch" if vola < 30 else "sehr hoch")
+    return {"vola_pa": round(vola, 1), "dd_5j": round(dd, 1), "risiko": klasse,
+            "rendite_3j_pa": rendite_pa(c, 3), "rendite_5j_pa": rendite_pa(c, 5),
+            "historie_jahre": round((c.index[-1] - c.index[0]).days / 365.25, 1)}
+
+
+def einordnung(r: dict) -> list[str]:
+    """Nüchterne, regelbasierte Einordnung. Keine Empfehlung."""
+    t = []
+    name, kat = r.get("name", ""), r.get("kategorie", "")
+    breit = any(k in name + " " + kat for k in ("World", "ACWI", "All Country", "All-World", "Welt"))
+    if r.get("fondsart") == "Gold-ETC":
+        t.append("Gold: keine Zinsen oder Dividenden, oft gegenläufig zu Aktien. Als kleine Beimischung üblich.")
+    elif "Anleihe" in kat or "Bond" in name:
+        t.append("Anleihen: meist ruhiger als Aktien, dienen als Stabilitätsbaustein.")
+    elif "Small Cap" in name or "Nebenwerte" in kat:
+        t.append("Nebenwerte weltweit: breit gestreut, aber nur kleinere Firmen. Eher Ergänzung als Basis.")
+    elif breit:
+        t.append("Breit gestreut über viele Länder und Firmen. Eignet sich als Basis.")
+    elif "Themen" in kat or "Energy" in name:
+        t.append("Themen-ETF: wenige Firmen einer Branche, Klumpenrisiko. Höchstens als kleine Beimischung.")
+    else:
+        t.append("Auf eine Region oder Branche begrenzt. Eher Ergänzung als Basis.")
+    t.append(f"Schwankung {r['vola_pa']:.0f} % pro Jahr, Risiko {r['risiko']}. "
+             f"Größter Rückgang in 5 Jahren: {r['dd_5j']:.0f} %.")
+    if r.get("historie_jahre", 0) < 5:
+        t.append(f"Nur {r['historie_jahre']:.1f} Jahre Kurshistorie, die Zahlen sind wenig belastbar.")
+    t.append("Trend aktuell aufwärts (über der 200-Tage-Linie)." if r["signal"] == "investiert"
+             else "Trend aktuell abwärts (unter der 200-Tage-Linie).")
+    if r["regel_dd"] > r["halten_dd"] + 5:
+        t.append("Die 200-Tage-Regel hätte die Rückgänge hier deutlich gemildert.")
+    return t
+
+
 def eurusd() -> float:
     """Letzter Schlusskurs EUR/USD (wie viele Dollar ein Euro kostet)."""
     return float(broker.kurse("EURUSD=X").iloc[-1])
 
 
-def fondsart(isin: str, name: str, ticker: str) -> str:
+def fondsart(isin: str, name: str, ticker: str, kategorie: str = "") -> str:
     """Grobe Einordnung für die Steuerschätzung (Teilfreistellung)."""
+    if any(k in name + " " + kategorie for k in ("Bond", "Anleihe", "Govt")):
+        return "Sonstiger Fonds"
     if ticker.endswith("USDT"):
         return "Krypto"
+    if "Gold" in name and "ETF" not in name:
+        return "Gold-ETC"
     if any(k in name for k in ("Overnight", "Money Market", "Geldmarkt")):
         return "Sonstiger Fonds"
     if "ETF" in name or "UCITS" in name:
@@ -98,10 +153,24 @@ def main(out: str) -> None:
             w = {"isin": b["isin"], "ticker": b["ticker"], "name": m.get("longName") or b["isin"],
                  "waehrung": m.get("currency"), "boerse": m.get("fullExchangeName")}
             eintraege.append((w, "Baustein", b["rolle"]))
+    gesehen = {w["isin"] for w, _, _ in eintraege}
+    for datei, gruppe in ((BASIS.parent / "pruefliste.json", "Prüfung"), (BASIS / "kandidaten.json", "Kandidat")):
+        liste = json.loads(datei.read_text())["werte"] if datei.exists() else []
+        for k in liste:
+            if k["isin"] in gesehen:
+                continue
+            gesehen.add(k["isin"])
+            m = broker.meta(k["ticker"]) or {}
+            w = {"isin": k["isin"], "ticker": k["ticker"], "name": k.get("name") or m.get("longName") or k["isin"],
+                 "waehrung": k.get("waehrung") or m.get("currency"), "boerse": k.get("boerse") or m.get("fullExchangeName"),
+                 "kategorie": k.get("kategorie", "")}
+            eintraege.append((w, gruppe, k.get("kategorie", "")))
     for w, gruppe, rolle in eintraege:
         try:
             r, v = zeile(w, gruppe, rolle)
-            r["fondsart"] = fondsart(r["isin"], r["name"], r["ticker"])
+            r["fondsart"] = fondsart(r["isin"], r["name"], r["ticker"], w.get("kategorie", ""))
+            r["kategorie"] = w.get("kategorie", rolle)
+            r["einordnung"] = einordnung(r)
             if r.get("waehrung") == "EUR":
                 r["kurs_eur"] = r["kurs"]
             elif r.get("waehrung") == "USD" and fx:

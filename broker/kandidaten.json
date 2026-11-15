@@ -1,0 +1,13 @@
+{"werte": [
+  {"isin": "IE00B6R52259", "ticker": "IUSQ.DE", "kategorie": "Aktien Welt inkl. Schwellenländer"},
+  {"isin": "IE00BJ0KDQ92", "ticker": "XDWD.DE", "kategorie": "Aktien Welt (Industrieländer)"},
+  {"isin": "IE00BKX55T58", "ticker": "VGVE.DE", "kategorie": "Aktien Welt (Industrieländer)"},
+  {"isin": "IE00B5BMR087", "ticker": "SXR8.DE", "kategorie": "Aktien USA (S&P 500)"},
+  {"isin": "IE00B4K48X80", "ticker": "EUNK.DE", "kategorie": "Aktien Europa"},
+  {"isin": "LU0274211480", "ticker": "DBXD.DE", "kategorie": "Aktien Deutschland (DAX)"},
+  {"isin": "IE00BF4RFH31", "ticker": "IUSN.DE", "kategorie": "Aktien Welt Nebenwerte"},
+  {"isin": "IE00B53SZB19", "ticker": "SXRV.DE", "kategorie": "Aktien USA Technologie (Nasdaq 100)"},
+  {"isin": "IE00B1XNHC34", "ticker": "IQQH.DE", "kategorie": "Themen-ETF Saubere Energie"},
+  {"isin": "IE00B4WXJJ64", "ticker": "EUNH.DE", "kategorie": "Staatsanleihen Euroraum"},
+  {"isin": "DE000A0S9GB0", "ticker": "4GLD.DE", "kategorie": "Gold (ETC mit Lieferanspruch)"}
+]}

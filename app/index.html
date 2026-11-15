@@ -134,6 +134,24 @@
   .bk-del { font: inherit; border: none; background: none; color: var(--color-bad); cursor: pointer; padding: 4px 6px; }
   .bk-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .bk-table td.bk-hint { white-space: normal; min-width: 160px; text-align: left; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .bk-sec h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-sm) 0 0; }
+  .bk-pruef { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .bk-pruef h3 { margin: 0; }
+  .bk-pruefzeile { display: flex; gap: var(--cds-gap-sm); }
+  .bk-pruefzeile input { flex: 1; min-width: 0; font: inherit; font-size: 17px; letter-spacing: .06em; text-transform: uppercase; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); }
+  .bk-pruefzeile input[aria-invalid="true"] { border-color: var(--color-bad); }
+  .bk-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--cds-gap-md); }
+  .bk-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+  .bk-card h4 { margin: 0; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+  .bk-card .bk-meta { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .bk-card .bk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bk-kz { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-variant-numeric: tabular-nums; }
+  .bk-kz div { display: flex; flex-direction: column; }
+  .bk-kz span:first-child { font-size: 11.5px; color: var(--color-fg-muted); }
+  .bk-card ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: var(--cds-font-size-caption); line-height: 1.5; }
+  .bk-card .bk-actions { margin-top: 2px; }
+  .bk-card .bk-btn { font-size: 13.5px; padding: 8px 12px; }
+  .bk-isin-sel { user-select: all; -webkit-user-select: all; font-variant-numeric: tabular-nums; }
   [data-dash-source-state=refreshing] { opacity: .5; }
 
 </style>
@@ -157,11 +175,12 @@
       <a href="#hinweise" data-ziel="hinweise">1 Neu</a>
       <a href="#depot" data-ziel="depot">2 Mein Depot</a>
       <a href="#watchlist" data-ziel="watchlist">3 Watchlist</a>
-      <a href="#entwicklung" data-ziel="entwicklung">4 Entwicklung</a>
-      <a href="#verlauf" data-ziel="verlauf">5 Kursverlauf</a>
-      <a href="#bausteine" data-ziel="bausteine">6 Bausteine</a>
-      <a href="#test" data-ziel="test">7 Regeltest</a>
-      <a href="#lernen" data-ziel="lernen">8 Lernen</a>
+      <a href="#entdecken" data-ziel="entdecken">4 Prüfen &amp; Entdecken</a>
+      <a href="#entwicklung" data-ziel="entwicklung">5 Entwicklung</a>
+      <a href="#verlauf" data-ziel="verlauf">6 Kursverlauf</a>
+      <a href="#bausteine" data-ziel="bausteine">7 Bausteine</a>
+      <a href="#test" data-ziel="test">8 Regeltest</a>
+      <a href="#lernen" data-ziel="lernen">9 Lernen</a>
       <a href="#aktualisieren" data-ziel="aktualisieren">Aktualisieren</a>
     </nav>
   </header>
@@ -202,7 +221,7 @@
         <label>Kaufkurs je Stück in €<input id="kauf-kurs" type="text" inputmode="decimal" required></label>
         <label>Gebühren in €<input id="kauf-gebuehr" type="text" inputmode="decimal" value="1"></label>
         <label>Art (für die Steuer)<select id="kauf-art">
-          <option>Aktien-ETF</option><option>Mischfonds</option><option>Sonstiger Fonds</option><option>Aktie</option><option>Krypto</option>
+          <option>Aktien-ETF</option><option>Mischfonds</option><option>Sonstiger Fonds</option><option>Aktie</option><option>Gold-ETC</option><option>Krypto</option>
         </select></label>
         <button class="bk-btn" type="submit">Kauf speichern</button>
       </form>
@@ -215,7 +234,7 @@
       <form class="bk-form" id="steuer-form">
         <label>Sparer-Pauschbetrag<select id="st-pausch"><option value="1000">1.000 € (allein)</option><option value="2000">2.000 € (verheiratet, gemeinsam)</option><option value="0">schon anderweitig verbraucht</option></select></label>
         <label>Kirchensteuer<select id="st-kirche"><option value="0">keine</option><option value="0.08">8 % (Bayern, Baden-Württemberg)</option><option value="0.09">9 % (übrige Länder)</option></select></label>
-        <label>Dein persönlicher Steuersatz für Krypto (%)<input id="st-satz" type="text" inputmode="decimal" value="30"></label>
+        <label>Dein persönlicher Steuersatz für Krypto und Gold (%)<input id="st-satz" type="text" inputmode="decimal" value="30"></label>
       </form>
       <p class="bk-note">Der persönliche Steuersatz gilt nur für Krypto-Gewinne innerhalb eines Jahres. Er hängt von deinem gesamten Einkommen ab. Wenn du ihn nicht kennst, steht er in deinem letzten Steuerbescheid oder du fragst deinen Steuerberater.</p>
     </details>
@@ -237,7 +256,7 @@
     <details class="bk-foot">
       <summary>Wie BroKer die Steuer schätzt</summary>
       <p><b>Aktien, ETFs, Fonds:</b> Abgeltungsteuer 25 % plus Solidaritätszuschlag 5,5 % darauf, also 26,375 %, mit Kirchensteuer etwas mehr (rund 27,8 bzw. 28 %). Bei Aktien-ETFs sind 30 % des Gewinns steuerfrei (Teilfreistellung), bei Mischfonds 15 %. Vom gesamten Gewinn geht zuerst der Sparer-Pauschbetrag ab.</p>
-      <p><b>Krypto:</b> Gewinne sind nach mehr als einem Jahr Haltedauer steuerfrei. Innerhalb eines Jahres gilt dein persönlicher Steuersatz, aber nur, wenn alle Krypto-Gewinne des Jahres zusammen 1.000 € erreichen (Freigrenze: darüber ist alles steuerpflichtig).</p>
+      <p><b>Krypto und Gold-ETCs mit Lieferanspruch (z. B. Xetra-Gold):</b> Gewinne sind nach mehr als einem Jahr Haltedauer steuerfrei. Innerhalb eines Jahres gilt dein persönlicher Steuersatz, aber nur, wenn alle Krypto-Gewinne des Jahres zusammen 1.000 € erreichen (Freigrenze: darüber ist alles steuerpflichtig).</p>
       <p><b>Vereinfacht:</b> Verluste werden hier mit Gewinnen verrechnet. In Wirklichkeit dürfen Verluste aus Einzelaktien nur mit Gewinnen aus Einzelaktien verrechnet werden. Die Vorabpauschale bei thesaurierenden ETFs und bereits in diesem Jahr realisierte Gewinne sind nicht berücksichtigt. Trade Republic führt die Steuer auf Wertpapiere beim Verkauf automatisch ab. Krypto-Gewinne gibst du selbst in der Steuererklärung an.</p>
       <p>Das ist eine Schätzung, keine Steuerberatung.</p>
     </details>
@@ -266,8 +285,37 @@
     </div>
   </section>
 
+  <section class="bk-sec" id="entdecken">
+    <h2>4 Prüfen &amp; Entdecken</h2>
+    <p class="bk-note">Prüf eine ISIN, bevor du investierst, oder sieh dir an, was BroKer bei bekannten ETFs gefunden hat. Alle Werte werden nach denselben Kriterien analysiert: Trend, Schwankung, größter Rückgang, Rendite und Regeltest.</p>
+
+    <div class="bk-box bk-pruef">
+      <h3>ISIN prüfen</h3>
+      <form class="bk-pruefzeile" id="pruef-form" autocomplete="off">
+        <label class="bk-sr" for="pruef-isin">ISIN</label>
+        <input id="pruef-isin" type="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="14" placeholder="z. B. IE00B6R52259">
+        <button class="bk-btn" type="submit">Prüfen</button>
+      </form>
+      <p class="bk-note" id="pruef-status" role="status">Die ISIN findest du in Trade Republic beim Wert unter "Info" oder im Wertpapier-Steckbrief.</p>
+      <div id="pruef-ergebnis"></div>
+    </div>
+
+    <h3>Deine Prüfungen</h3>
+    <div class="bk-cards" id="pruef-liste"></div>
+    <p class="bk-note" id="pruef-leer">Noch keine geprüften Werte. Gib oben eine ISIN ein.</p>
+
+    <h3>Von BroKer gefunden</h3>
+    <p class="bk-note">Bekannte, breit gehandelte ETFs und ein Gold-ETC, täglich neu analysiert. Das ist eine Auswahl zum Vergleichen, keine Empfehlung. Breite Welt-ETFs eignen sich als Basis, alles Engere eher als kleine Beimischung.</p>
+    <div class="bk-seg" role="group" aria-label="Sortierung">
+      <button type="button" data-sort="risiko" aria-pressed="true">Nach Risiko</button>
+      <button type="button" data-sort="rendite" aria-pressed="false">Nach 5-Jahres-Rendite</button>
+      <button type="button" data-sort="trend" aria-pressed="false">Trend aufwärts zuerst</button>
+    </div>
+    <div class="bk-cards" id="kand-liste"></div>
+  </section>
+
   <section class="bk-sec" id="entwicklung">
-    <h2>4 Entwicklung im Zeitraum</h2>
+    <h2>5 Entwicklung im Zeitraum</h2>
     <div class="bk-seg" role="group" aria-label="Zeitraum">
       <button type="button" data-zr="tag_pct" aria-pressed="false">Tag</button>
       <button type="button" data-zr="monat_pct" aria-pressed="false">Monat</button>
@@ -280,7 +328,7 @@
   </section>
 
   <section class="bk-sec" id="verlauf">
-    <h2>5 Kursverlauf der letzten 12 Monate</h2>
+    <h2>6 Kursverlauf der letzten 12 Monate</h2>
     <div class="bk-row">
       <select class="dash-select" id="wert-wahl" data-draw="wahl" aria-label="Wert auswählen" data-source="werte"></select>
       <div class="bk-legend"><span class="bk-k1">Schlusskurs</span><span class="dash" style="--bk-sw: var(--cds-chart-muted)">200-Tage-Linie</span></div>
@@ -290,7 +338,7 @@
   </section>
 
   <section class="bk-sec" id="bausteine">
-    <h2>6 Bausteine für eine breite Verteilung</h2>
+    <h2>7 Bausteine für eine breite Verteilung</h2>
     <p class="bk-note">Beispiel-ETFs, die Verbraucherschützer für eine breite Streuung typischerweise nennen. Zur Orientierung, keine Empfehlung. Wie du aufteilst, hängt von deiner Anlagedauer und deiner Risikobereitschaft ab.</p>
     <div class="bk-tablewrap">
       <table class="bk-table" data-source="werte" data-row-key="isin">
@@ -313,7 +361,7 @@
   </section>
 
   <section class="bk-sec" id="test">
-    <h2>7 Hat die Regel bisher etwas gebracht?</h2>
+    <h2>8 Hat die Regel bisher etwas gebracht?</h2>
     <p class="bk-note">Rückblick über bis zu 15 Jahre: Rendite pro Jahr und größter Rückgang vom Höchststand, Regel gegen einfaches Halten, mit 0,1 % Gebühr je Wechsel. Vergangene Ergebnisse garantieren nichts.</p>
     <div class="bk-tablewrap">
       <table class="bk-table" data-source="werte" data-row-key="isin">
@@ -332,7 +380,7 @@
   </section>
 
   <section class="bk-sec" id="lernen">
-    <h2>8 Lernen</h2>
+    <h2>9 Lernen</h2>
     <p class="bk-note">Kurze Anleitungen zum Nachlesen. Zum Vertiefen eignen sich die Seiten der Verbraucherzentralen, der Finanzaufsicht BaFin und von Stiftung Warentest (Finanztest).</p>
 
     <details class="bk-box bk-fold">
@@ -510,7 +558,8 @@
         hide() { t.hidden = true; }
       };
     }
-    return { pct, num, kurz, tage, datum, tip, zeitraum: 'jahr_pct', wahl: null };
+    const kern = (r) => r.gruppe === 'Watchlist' || r.gruppe === 'Baustein';
+    return { pct, num, kurz, tage, datum, tip, kern, zeitraum: 'jahr_pct', wahl: null };
   })();
 
   document.querySelectorAll('.bk-legend .bk-k1').forEach((e) => e.style.setProperty('--bk-sw', dash.colors[0]));
@@ -520,7 +569,7 @@
     description: 'Wie viele Werte über der 200-Tage-Linie liegen, wie viele neue Signale und Hinweise es gibt.',
     inputs: ['werte', 'hinweise'],
     fn: (werte, hinweise) => {
-      const ok = werte.filter((w) => !w.fehler);
+      const ok = werte.filter((w) => !w.fehler && BK.kern(w));
       return [{
         investiert: ok.filter((w) => w.signal === 'investiert').length,
         gesamt: ok.length,
@@ -536,7 +585,7 @@
     inputs: ['werte'],
     fn: (werte) => {
       const out = [];
-      for (const w of werte) {
+      for (const w of werte.filter(BK.kern)) {
         if (w.fehler) { out.push({ isin: w.isin, name: w.name, art: 'Datenfehler', stufe: 'bad', wert: null, text: 'Keine Kursdaten: ' + w.fehler }); continue; }
         const krypto = /USDT$/.test(w.ticker);
         const geldmarkt = /Overnight|Geldmarkt|Money Market/i.test(w.name + ' ' + (w.rolle || ''));
@@ -636,7 +685,7 @@
     const w = dash.data('werte');
     if (w.status !== 'ok') { el.replaceChildren(document.createTextNode(w.status === 'error' ? 'Konnte nicht geladen werden' : '—')); return; }
     const f = BK.zeitraum;
-    const rows = w.data.filter((r) => !r.fehler && r[f] != null).slice().sort((a, b) => b[f] - a[f]);
+    const rows = w.data.filter((r) => !r.fehler && BK.kern(r) && r[f] != null).slice().sort((a, b) => b[f] - a[f]);
     const W = Math.max(280, el.clientWidth), bar = 22, gap = 10;
     const svg = d3.create('svg').attr('viewBox', `0 0 ${W} 10`).attr('role', 'img')
       .attr('aria-label', 'Kursveränderung je Wert im gewählten Zeitraum');
@@ -697,7 +746,7 @@
   dash.draw('tab-test', (el) => {
     const w = dash.data('werte');
     if (w.status !== 'ok') { el.replaceChildren(); return; }
-    el.replaceChildren(...w.data.filter((r) => !r.fehler).map((r) => {
+    el.replaceChildren(...w.data.filter((r) => !r.fehler && BK.kern(r)).map((r) => {
       const tr = document.createElement('tr'); tr.dataset.key = r.isin;
       const td = (txt, cls) => { const c = document.createElement('td'); c.textContent = txt; if (cls) c.className = cls; return c; };
       const besser = r.regel_pa > r.halten_pa;
@@ -782,7 +831,8 @@
       return /^-?\d*\.?\d+$/.test(t) ? parseFloat(t) : NaN;
     };
     const deZahl = (v) => v == null || isNaN(v) ? '' : String(v).replace('.', ',');
-    const TF = { 'Aktien-ETF': 0.3, 'Mischfonds': 0.15, 'Sonstiger Fonds': 0, 'Aktie': 0, 'Krypto': 0 };
+    const TF = { 'Aktien-ETF': 0.3, 'Mischfonds': 0.15, 'Sonstiger Fonds': 0, 'Aktie': 0, 'Krypto': 0, 'Gold-ETC': 0 };
+    const P23 = (art) => art === 'Krypto' || art === 'Gold-ETC';
     const abgeltung = () => { const k = +st.kirche || 0; const a = 0.25 / (1 + 0.25 * k); return a * (1 + 0.055 + k); };
 
     function rechnen() {
@@ -800,7 +850,7 @@
         return { ...k, name: r.name || k.name || k.isin, kurs, einstand, wert, gewinn, tage, frei };
       });
       // Wertpapiere: Teilfreistellung, Verrechnung, Pauschbetrag
-      const wp = pos.filter((p) => p.art !== 'Krypto' && p.gewinn != null);
+      const wp = pos.filter((p) => !P23(p.art) && p.gewinn != null);
       wp.forEach((p) => { p.stpfl = p.gewinn * (1 - (TF[p.art] ?? 0)); });
       const summeStpfl = wp.reduce((a, p) => a + p.stpfl, 0);
       const basis = Math.max(0, summeStpfl - (+st.pausch || 0));
@@ -808,7 +858,7 @@
       const posStpfl = wp.reduce((a, p) => a + Math.max(0, p.stpfl), 0);
       wp.forEach((p) => { p.steuer = p.stpfl > 0 && posStpfl > 0 ? steuerWp * p.stpfl / posStpfl : 0; });
       // Krypto: Haltefrist und Freigrenze
-      const kr = pos.filter((p) => p.art === 'Krypto' && p.gewinn != null);
+      const kr = pos.filter((p) => P23(p.art) && p.gewinn != null);
       const kurzfristig = kr.filter((p) => p.tage <= 365);
       const kurzGewinn = kurzfristig.reduce((a, p) => a + p.gewinn, 0);
       const satz = (+st.satz || 0) / 100 * 1.055;
@@ -919,12 +969,115 @@
     return { start, zeichnen };
   })();
 
+  // ---------- Prüfen & Entdecken ----------
+  const ENTDECKEN = (() => {
+    const WF = (document.querySelector('.bk-actions a.bk-btn') || {}).href || '';
+    let sortierung = 'risiko';
+    const RANG = { 'sehr gering': 0, 'gering': 1, 'mittel': 2, 'hoch': 3, 'sehr hoch': 4 };
+    // Prüfziffer nach ISO 6166: Buchstaben zu Zahlen, dann Luhn-Verfahren
+    const gueltig = (isin) => {
+      if (!/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(isin)) return false;
+      const z = isin.slice(0, 11).split('').map((c) => parseInt(c, 36)).join('');
+      let summe = 0;
+      z.split('').reverse().forEach((d, i) => { let n = +d; if (i % 2 === 0) { n *= 2; if (n > 9) n -= 9; } summe += n; });
+      return (10 - (summe % 10)) % 10 === +isin[11];
+    };
+    const status = (t, fehler) => { const e = document.getElementById('pruef-status'); e.textContent = t; e.style.color = fehler ? 'var(--color-bad)' : ''; };
+    async function kopieren(text) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) { return false; }
+    }
+    async function zuGithub(isin, feld, wasPassiert) {
+      const ok = await kopieren(isin);
+      status((ok ? 'ISIN ' + isin + ' kopiert. ' : 'ISIN: ' + isin + ' (bitte von Hand kopieren). ') +
+        'Auf GitHub: "Run workflow" tippen, die ISIN ins Feld "' + feld + '" einfügen und "Run workflow" bestätigen. ' + wasPassiert);
+      document.getElementById('pruef-status').scrollIntoView({ block: 'center' });
+      window.open(WF, '_blank', 'noopener');
+    }
+    const btn = (text, fn, ghost = true) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'bk-btn' + (ghost ? ' ghost' : ''); b.textContent = text; b.addEventListener('click', fn); return b; };
+    function karte(r) {
+      const c = document.createElement('article'); c.className = 'bk-card';
+      const h = document.createElement('h4'); h.textContent = BK.kurz(r.name);
+      const m = document.createElement('div'); m.className = 'bk-meta';
+      const isin = document.createElement('span'); isin.className = 'bk-isin-sel'; isin.textContent = r.isin;
+      m.append('ISIN ', isin, r.kategorie ? ' · ' + r.kategorie : '');
+      c.append(h, m);
+      if (r.fehler) { const p = document.createElement('p'); p.className = 'bk-note'; p.textContent = 'Keine Kursdaten: ' + r.fehler; c.append(p); return c; }
+      const chips = document.createElement('div'); chips.className = 'bk-chips';
+      const chip = (t, k) => { const e = document.createElement('span'); e.className = 'bk-chip ' + k; e.textContent = t; return e; };
+      chips.append(chip(r.signal === 'investiert' ? 'Trend aufwärts' : 'Trend abwärts', r.signal === 'investiert' ? 'ok' : 'warn'));
+      if (r.risiko) chips.append(chip('Risiko ' + r.risiko, RANG[r.risiko] >= 3 ? 'bad' : RANG[r.risiko] === 2 ? 'warn' : 'ok'));
+      if (r.gruppe === 'Watchlist') chips.append(chip('in deiner Watchlist', 'info'));
+      if (r.gruppe === 'Baustein') chips.append(chip('Baustein', 'info'));
+      c.append(chips);
+      const kz = document.createElement('div'); kz.className = 'bk-kz';
+      const feld = (k, v, cls) => { const d = document.createElement('div'); const a = document.createElement('span'); a.textContent = k; const b = document.createElement('span'); b.textContent = v; if (cls) b.className = cls; d.append(a, b); return d; };
+      const farbe = (v) => v == null ? '' : v >= 0 ? 'pos' : 'neg';
+      kz.append(feld('Kurs', BK.num(r.kurs) + ' ' + (r.waehrung === 'EUR' ? '€' : r.waehrung || '')),
+        feld('12 Monate', BK.pct(r.jahr_pct), farbe(r.jahr_pct)),
+        feld('3 Jahre pro Jahr', BK.pct(r.rendite_3j_pa), farbe(r.rendite_3j_pa)),
+        feld('5 Jahre pro Jahr', BK.pct(r.rendite_5j_pa), farbe(r.rendite_5j_pa)),
+        feld('Schwankung pro Jahr', r.vola_pa == null ? '—' : BK.num(r.vola_pa, 1) + ' %'),
+        feld('Größter Rückgang 5 J.', BK.pct(r.dd_5j), 'neg'));
+      c.append(kz);
+      if (r.einordnung && r.einordnung.length) { const ul = document.createElement('ul'); r.einordnung.forEach((t) => { const li = document.createElement('li'); li.textContent = t; ul.append(li); }); c.append(ul); }
+      const akt = document.createElement('div'); akt.className = 'bk-actions';
+      akt.append(btn('Kursverlauf', () => { BK.wahl = r.isin; dash.draw('wahl'); dash.draw('kurs'); document.getElementById('verlauf').scrollIntoView({ block: 'start' }); }));
+      akt.append(btn('Kauf eintragen', () => { const sel = document.getElementById('kauf-wert'); sel.value = r.isin; sel.dispatchEvent(new Event('change')); const d = document.querySelector('#depot details'); if (d) d.open = true; document.getElementById('kauf-form').scrollIntoView({ block: 'center' }); }));
+      if (r.gruppe !== 'Watchlist' && r.gruppe !== 'Baustein') akt.append(btn('In Watchlist', () => zuGithub(r.isin, 'isin', 'Danach erscheint der Wert in deiner Watchlist.')));
+      if (r.gruppe === 'Prüfung') akt.append(btn('Entfernen', () => zuGithub(r.isin, 'entfernen', 'Danach verschwindet der Wert aus deinen Prüfungen.')));
+      c.append(akt);
+      return c;
+    }
+    function zeichnen() {
+      const w = dash.data('werte'); const rows = w.status === 'ok' ? w.data : [];
+      const pr = rows.filter((r) => r.gruppe === 'Prüfung');
+      document.getElementById('pruef-liste').replaceChildren(...pr.map(karte));
+      document.getElementById('pruef-leer').hidden = pr.length > 0;
+      const k = rows.filter((r) => r.gruppe === 'Kandidat').slice();
+      const v = (x, f, d) => x[f] == null ? d : x[f];
+      if (sortierung === 'risiko') k.sort((a, b) => (RANG[a.risiko] ?? 9) - (RANG[b.risiko] ?? 9) || v(a, 'vola_pa', 99) - v(b, 'vola_pa', 99));
+      if (sortierung === 'rendite') k.sort((a, b) => v(b, 'rendite_5j_pa', -99) - v(a, 'rendite_5j_pa', -99));
+      if (sortierung === 'trend') k.sort((a, b) => (a.signal === 'investiert' ? 0 : 1) - (b.signal === 'investiert' ? 0 : 1) || v(b, 'abstand_pct', -99) - v(a, 'abstand_pct', -99));
+      document.getElementById('kand-liste').replaceChildren(...k.map(karte));
+    }
+    function pruefen(ev) {
+      if (ev) ev.preventDefault();
+      const feld = document.getElementById('pruef-isin');
+      const isin = feld.value.replace(/[\s-]/g, '').toUpperCase();
+      feld.value = isin;
+      const erg = document.getElementById('pruef-ergebnis'); erg.replaceChildren();
+      if (!isin) { status('Bitte eine ISIN eingeben.', true); return; }
+      if (isin === 'BTC' || isin === 'ETH') { status('Krypto hat keine ISIN. Bitcoin und Ethereum stehen bereits in deiner Watchlist.'); return; }
+      if (!gueltig(isin)) {
+        feld.setAttribute('aria-invalid', 'true');
+        status(isin.length !== 12 ? 'Eine ISIN hat genau 12 Zeichen, deine hat ' + isin.length + '.' : 'Diese ISIN ist ungültig: Die Prüfziffer passt nicht. Wahrscheinlich ein Tippfehler.', true);
+        return;
+      }
+      feld.removeAttribute('aria-invalid');
+      const r = (dash.data('werte').data || []).find((x) => x.isin === isin);
+      if (r) { status('Gültige ISIN. BroKer kennt diesen Wert schon, hier ist die Analyse:'); erg.append(karte(r)); return; }
+      status('Gültige ISIN. Für die Analyse muss BroKer die Kurse einmal laden.');
+      erg.append(btn('Bei GitHub prüfen lassen', () => zuGithub(isin, 'pruefen', 'Nach etwa 2 Minuten steht die Analyse unter "Deine Prüfungen".'), false));
+    }
+    function start() {
+      document.getElementById('pruef-form').addEventListener('submit', pruefen);
+      document.getElementById('pruef-isin').addEventListener('input', (e) => { e.target.removeAttribute('aria-invalid'); });
+      document.querySelectorAll('button[data-sort]').forEach((b) => b.addEventListener('click', () => {
+        sortierung = b.dataset.sort;
+        document.querySelectorAll('button[data-sort]').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+        zeichnen();
+      }));
+    }
+    return { start, zeichnen, gueltig };
+  })();
+
   DEPOT.start();
-  dash.laden().then(() => DEPOT.zeichnen());
+  ENTDECKEN.start();
+  dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); });
   let breite = innerWidth;
   addEventListener('resize', () => { if (Math.abs(innerWidth - breite) > 20) { breite = innerWidth; dash.alles(); } });
-  document.getElementById('neu-laden').addEventListener('click', () => dash.laden().then(() => DEPOT.zeichnen()));
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') dash.laden().then(() => DEPOT.zeichnen()); });
+  document.getElementById('neu-laden').addEventListener('click', () => dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); }));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); }); });
 
 </script>
 </body>

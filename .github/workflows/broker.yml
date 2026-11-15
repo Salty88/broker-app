@@ -4,18 +4,22 @@ on:
   push:
     # Nach dem Übernehmen eines Pull Requests sofort neu veröffentlichen
     branches: [main]
-    paths: ["app/**", "broker/**", "watchlist.json", ".github/workflows/broker.yml"]
+    paths: ["app/**", "broker/**", "watchlist.json", "pruefliste.json", ".github/workflows/broker.yml"]
   schedule:
     # Täglich 07:30 UTC = 8:30 Uhr Winterzeit / 9:30 Uhr Sommerzeit in Berlin
     - cron: "30 7 * * *"
   workflow_dispatch:
     inputs:
       isin:
-        description: "Optional: neue ISIN aufnehmen (Krypto: BTC oder ETH). Leer lassen zum reinen Aktualisieren."
+        description: "In die Watchlist aufnehmen: ISIN (Krypto: BTC oder ETH). Leer lassen zum reinen Aktualisieren."
+        required: false
+        default: ""
+      pruefen:
+        description: "Nur prüfen: ISIN analysieren lassen, erscheint unter Prüfen und Entdecken."
         required: false
         default: ""
       entfernen:
-        description: "Optional: ISIN aus der Watchlist entfernen."
+        description: "Entfernen: ISIN aus Watchlist und Prüfungen löschen."
         required: false
         default: ""
 
@@ -45,17 +49,25 @@ jobs:
         run: pip install -q pandas requests
 
       - name: Watchlist ändern
-        if: ${{ inputs.isin != '' || inputs.entfernen != '' }}
+        if: ${{ inputs.isin != '' || inputs.pruefen != '' || inputs.entfernen != '' }}
         env:
           NEU: ${{ inputs.isin }}
+          PRUEF: ${{ inputs.pruefen }}
           WEG: ${{ inputs.entfernen }}
         run: |
-          if [ -n "$NEU" ]; then python broker/broker.py hinzufuegen "$NEU"; fi
-          if [ -n "$WEG" ]; then python broker/broker.py entfernen "$WEG"; fi
+          if [ -n "$NEU" ]; then
+            python broker/broker.py hinzufuegen "$NEU"
+            python broker/pruefen.py entfernen "$NEU"
+          fi
+          if [ -n "$PRUEF" ]; then python broker/pruefen.py hinzufuegen "$PRUEF"; fi
+          if [ -n "$WEG" ]; then
+            python broker/broker.py entfernen "$WEG" || true
+            python broker/pruefen.py entfernen "$WEG"
+          fi
           git config user.name "BroKer"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add watchlist.json
-          git commit -m "Watchlist: ${NEU:++$NEU }${WEG:+-$WEG}" || echo "Keine Änderung"
+          git add watchlist.json pruefliste.json
+          git commit -m "BroKer: ${NEU:+Watchlist +$NEU }${PRUEF:+Prüfung +$PRUEF }${WEG:+entfernt $WEG}" || echo "Keine Änderung"
           git push
 
       - name: Kurse laden und Signale berechnen
