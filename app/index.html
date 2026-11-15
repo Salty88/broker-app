@@ -48,7 +48,7 @@
   .bk-btn { font: inherit; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); padding: 10px 16px; border-radius: 10px; border: 1px solid var(--accent); background: var(--accent); color: #fff; text-decoration: none; cursor: pointer; }
   .bk-btn.ghost { background: transparent; color: var(--accent); }
   .bk-btn:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
-  .bk-sec { scroll-margin-top: 16px; }
+  .bk-sec { scroll-margin-top: 64px; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 
 
@@ -101,8 +101,10 @@
   .bk-foot summary { cursor: pointer; color: var(--color-fg); }
   .bk-stand { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-sm); margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
   .bk-stand b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
-  .bk-nav { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); margin-top: var(--cds-gap-xs); }
-  .bk-nav a { font-size: var(--cds-font-size-caption); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--color-border-line); color: var(--color-fg); text-decoration: none; background: var(--color-bg); }
+  .bk-nav { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: nowrap; gap: var(--cds-gap-xs); overflow-x: auto; scrollbar-width: none; background: var(--color-bg); margin-inline: calc(-1 * max(16px, env(safe-area-inset-left))); padding: 8px max(16px, env(safe-area-inset-left)); border-bottom: 1px solid var(--color-border-line); }
+  .bk-nav::-webkit-scrollbar { display: none; }
+  .bk-nav a { flex: none; white-space: nowrap; font-size: var(--cds-font-size-caption); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--color-border-line); color: var(--color-fg); text-decoration: none; background: var(--color-panel); }
+  .bk-nav a[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
   .bk-nav a:hover { border-color: var(--color-fg-muted); }
   .bk-nav a:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .bk-box { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
@@ -111,6 +113,8 @@
   .bk-tiles4 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important; }
   .bk-tile .bk-d { font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
   #depot-summe .bk-v { white-space: nowrap; font-size: clamp(20px, 5.4vw, 30px); }
+  #kacheln .bk-tile { justify-content: space-between; }
+  #kacheln .bk-v { white-space: nowrap; font-size: clamp(18px, 5.4vw, 30px); }
   @media (max-width: 640px) {
     #depot-tabelle thead { display: none; }
     #depot-tabelle, #depot-tabelle tbody { display: block; }
@@ -171,24 +175,24 @@
       <a class="bk-btn ghost" href="https://github.com/salty88/broker-app/actions/workflows/broker.yml" target="_blank" rel="noopener">Wert hinzufügen</a>
       <button class="bk-btn ghost" type="button" id="neu-laden">App neu laden</button>
     </div>
-    <nav class="bk-nav" aria-label="Bereiche">
-      <a href="#hinweise" data-ziel="hinweise">1 Neu</a>
-      <a href="#depot" data-ziel="depot">2 Mein Depot</a>
-      <a href="#watchlist" data-ziel="watchlist">3 Watchlist</a>
-      <a href="#entdecken" data-ziel="entdecken">4 Prüfen &amp; Entdecken</a>
-      <a href="#entwicklung" data-ziel="entwicklung">5 Entwicklung</a>
-      <a href="#verlauf" data-ziel="verlauf">6 Kursverlauf</a>
-      <a href="#bausteine" data-ziel="bausteine">7 Bausteine</a>
-      <a href="#test" data-ziel="test">8 Regeltest</a>
-      <a href="#lernen" data-ziel="lernen">9 Lernen</a>
-      <a href="#aktualisieren" data-ziel="aktualisieren">Aktualisieren</a>
-    </nav>
   </header>
+  <nav class="bk-nav" aria-label="Bereiche">
+    <a href="#hinweise" data-ziel="hinweise">1 Neu</a>
+    <a href="#depot" data-ziel="depot">2 Mein Depot</a>
+    <a href="#watchlist" data-ziel="watchlist">3 Watchlist</a>
+    <a href="#entdecken" data-ziel="entdecken">4 Prüfen &amp; Entdecken</a>
+    <a href="#entwicklung" data-ziel="entwicklung">5 Entwicklung</a>
+    <a href="#verlauf" data-ziel="verlauf">6 Kursverlauf</a>
+    <a href="#bausteine" data-ziel="bausteine">7 Bausteine</a>
+    <a href="#test" data-ziel="test">8 Regeltest</a>
+    <a href="#lernen" data-ziel="lernen">9 Lernen</a>
+    <a href="#aktualisieren" data-ziel="aktualisieren">Aktualisieren</a>
+  </nav>
 
   <section class="bk-tiles" id="kacheln" aria-label="Überblick">
-    <div class="bk-tile"><span class="bk-k">Über der 200-Tage-Linie</span><span class="bk-v"><span data-draw="investiert" data-source="ueberblick" data-field="investiert" data-row="0">—</span> von <span data-draw="gesamt" data-source="ueberblick" data-field="gesamt" data-row="0">—</span></span></div>
-    <div class="bk-tile"><span class="bk-k">Neue Signale seit dem letzten Handelstag</span><span class="bk-v" data-draw="neu" data-source="ueberblick" data-field="neu" data-row="0">—</span></div>
-    <div class="bk-tile"><span class="bk-k">Hinweise, die du dir ansehen solltest</span><span class="bk-v" data-draw="anzahl-hinweise" data-source="ueberblick" data-field="hinweise" data-row="0">—</span></div>
+    <div class="bk-tile"><span class="bk-k">Über der Linie</span><span class="bk-v"><span data-draw="investiert" data-source="ueberblick" data-field="investiert" data-row="0">—</span> von <span data-draw="gesamt" data-source="ueberblick" data-field="gesamt" data-row="0">—</span></span></div>
+    <div class="bk-tile"><span class="bk-k">Neue Signale</span><span class="bk-v" data-draw="neu" data-source="ueberblick" data-field="neu" data-row="0">—</span></div>
+    <div class="bk-tile"><span class="bk-k">Hinweise</span><span class="bk-v" data-draw="anzahl-hinweise" data-source="ueberblick" data-field="hinweise" data-row="0">—</span></div>
   </section>
 
   <section class="bk-sec" id="hinweise">
@@ -1069,6 +1073,24 @@
       }));
     }
     return { start, zeichnen, gueltig };
+  })();
+
+
+  // Leiste zeigt, wo man gerade ist, und rollt den Eintrag ins Bild
+  (() => {
+    const links = [...document.querySelectorAll('.bk-nav a[data-ziel]')];
+    const ziele = links.map((a) => document.getElementById(a.dataset.ziel)).filter(Boolean);
+    let aktiv = null;
+    const markiere = () => {
+      let akt = ziele[0];
+      for (const z of ziele) if (z.getBoundingClientRect().top < 120) akt = z;
+      if (akt === aktiv) return; aktiv = akt;
+      links.forEach((a) => {
+        const an = a.dataset.ziel === akt.id; a.setAttribute('aria-current', an ? 'true' : 'false');
+        if (an) a.parentElement.scrollTo({ left: a.offsetLeft - 16, behavior: 'smooth' });
+      });
+    };
+    addEventListener('scroll', markiere, { passive: true }); markiere();
   })();
 
   DEPOT.start();

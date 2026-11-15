@@ -167,7 +167,11 @@ def testbefund(c: pd.Series, sig: pd.Series, tage_pro_jahr: int) -> dict:
 
 
 def lage(w: dict) -> dict:
-    c = kurse(w["ticker"])
+    return lage_aus(w, kurse(w["ticker"]))
+
+
+def lage_aus(w: dict, c: pd.Series) -> dict:
+    """Wie lage(), aber mit bereits geladenen Kursen (spart einen Abruf)."""
     if len(c) < 260:
         raise ValueError("Zu wenig Kurshistorie (unter einem Jahr) für die 200-Tage-Regel.")
     sma = c.rolling(200).mean()

@@ -4,7 +4,7 @@ on:
   push:
     # Nach dem Übernehmen eines Pull Requests sofort neu veröffentlichen
     branches: [main]
-    paths: ["app/**", "broker/**", "watchlist.json", "pruefliste.json", ".github/workflows/broker.yml"]
+    paths: ["app/**", "broker/**", "watchlist.json", "pruefliste.json", "requirements.txt", ".github/workflows/broker.yml"]
   schedule:
     # Täglich 07:30 UTC = 8:30 Uhr Winterzeit / 9:30 Uhr Sommerzeit in Berlin
     - cron: "30 7 * * *"
@@ -39,14 +39,15 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          cache: pip
 
       - name: Abhängigkeiten installieren
-        run: pip install -q pandas requests
+        run: pip install -q -r requirements.txt
 
       - name: Watchlist ändern
         if: ${{ inputs.isin != '' || inputs.pruefen != '' || inputs.entfernen != '' }}
@@ -73,8 +74,10 @@ jobs:
       - name: Kurse laden und Signale berechnen
         run: python broker/daten.py app/data
 
-      - name: Kurzbericht
-        run: python broker/broker.py signale >> "$GITHUB_STEP_SUMMARY"
+      # Qualität einbauen: kaputte Daten werden nicht veröffentlicht,
+      # die App zeigt dann weiter den letzten guten Stand.
+      - name: Daten prüfen und Kurzbericht
+        run: python broker/qualitaet.py app/data
 
       - uses: actions/configure-pages@v5
 

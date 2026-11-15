@@ -23,11 +23,16 @@ BASIS = Path(__file__).resolve().parent
 
 # Beispiel-Bausteine für eine breite Verteilung (ISIN geprüft, keine Empfehlung).
 BAUSTEINE = [
-    {"isin": "IE00B3RBWM25", "ticker": "VGWL.DE", "rolle": "Welt-Aktien, ein ETF für alles (ausschüttend)"},
-    {"isin": "IE00BK5BQT80", "ticker": "VWCE.DE", "rolle": "Welt-Aktien, ein ETF für alles (thesaurierend)"},
-    {"isin": "IE00B4L5Y983", "ticker": "EUNL.DE", "rolle": "Aktien Industrieländer (ca. 70 %)"},
-    {"isin": "IE00BKM4GZ66", "ticker": "IS3N.DE", "rolle": "Aktien Schwellenländer (ca. 30 %)"},
-    {"isin": "LU0290358497", "ticker": "XEON.DE", "rolle": "Sicherheitsbaustein Geldmarkt"},
+    {"isin": "IE00B3RBWM25", "ticker": "VGWL.DE", "name": "Vanguard FTSE All-World UCITS ETF",
+     "rolle": "Welt-Aktien, ein ETF für alles (ausschüttend)"},
+    {"isin": "IE00BK5BQT80", "ticker": "VWCE.DE", "name": "Vanguard FTSE All-World UCITS ETF USD Accumulation",
+     "rolle": "Welt-Aktien, ein ETF für alles (thesaurierend)"},
+    {"isin": "IE00B4L5Y983", "ticker": "EUNL.DE", "name": "iShares Core MSCI World UCITS ETF USD (Acc)",
+     "rolle": "Aktien Industrieländer (ca. 70 %)"},
+    {"isin": "IE00BKM4GZ66", "ticker": "IS3N.DE", "name": "iShares Core MSCI EM IMI UCITS ETF USD (Acc)",
+     "rolle": "Aktien Schwellenländer (ca. 30 %)"},
+    {"isin": "LU0290358497", "ticker": "XEON.DE", "name": "Xtrackers II EUR Overnight Rate Swap UCITS ETF 1C",
+     "rolle": "Sicherheitsbaustein Geldmarkt"},
 ]
 
 
@@ -44,8 +49,8 @@ def seit_jahresbeginn(c: pd.Series) -> float | None:
 
 
 def zeile(w: dict, gruppe: str, rolle: str = "") -> tuple[dict, list[dict]]:
-    lage = broker.lage(w)
-    c = broker.kurse(w["ticker"])
+    c = broker.kurse(w["ticker"])  # einmal laden, für alles verwenden
+    lage = broker.lage_aus(w, c)
     sma = c.rolling(200).mean()
     t = lage["test"]
     row = {
@@ -149,9 +154,7 @@ def main(out: str) -> None:
     beobachtet = {w["isin"] for w in broker.lade_liste()}
     for b in BAUSTEINE:
         if b["isin"] not in beobachtet:
-            m = broker.meta(b["ticker"]) or {}
-            w = {"isin": b["isin"], "ticker": b["ticker"], "name": m.get("longName") or b["isin"],
-                 "waehrung": m.get("currency"), "boerse": m.get("fullExchangeName")}
+            w = {"isin": b["isin"], "ticker": b["ticker"], "name": b["name"], "waehrung": "EUR", "boerse": "XETRA"}
             eintraege.append((w, "Baustein", b["rolle"]))
     gesehen = {w["isin"] for w, _, _ in eintraege}
     for datei, gruppe in ((BASIS.parent / "pruefliste.json", "Prüfung"), (BASIS / "kandidaten.json", "Kandidat")):
@@ -160,9 +163,11 @@ def main(out: str) -> None:
             if k["isin"] in gesehen:
                 continue
             gesehen.add(k["isin"])
-            m = broker.meta(k["ticker"]) or {}
+            # Namen stehen in der Liste; nur wenn einer fehlt, wird nachgeschlagen
+            m = {} if k.get("name") else (broker.meta(k["ticker"]) or {})
             w = {"isin": k["isin"], "ticker": k["ticker"], "name": k.get("name") or m.get("longName") or k["isin"],
-                 "waehrung": k.get("waehrung") or m.get("currency"), "boerse": k.get("boerse") or m.get("fullExchangeName"),
+                 "waehrung": k.get("waehrung") or m.get("currency") or "EUR",
+                 "boerse": k.get("boerse") or m.get("fullExchangeName") or "XETRA",
                  "kategorie": k.get("kategorie", "")}
             eintraege.append((w, gruppe, k.get("kategorie", "")))
     for w, gruppe, rolle in eintraege:
