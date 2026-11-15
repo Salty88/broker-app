@@ -36,7 +36,18 @@ Kurse laden (einmal je Wert) -> Signale und Kennzahlen berechnen -> Daten prüfe
 | `broker/pruefen.py` | ISIN mit Prüfziffer kontrollieren und zur Prüfung aufnehmen |
 | `broker/kandidaten.json` | Vorschläge "Von BroKer gefunden" (ISIN geprüft) |
 | `broker/qualitaet.py` | Datenprüfung vor dem Veröffentlichen und Kurzbericht |
+| `broker/quellen.py` | Offizielle Quellen und Gegenproben: EZB (Wechselkurs, Leitzinsen), Kraken (zweite Börse für Krypto), tagesschau (Nachrichten), Datenampel je Wert |
 | `app/` | Die App: eine Seite, Symbol und Manifest |
 | `.github/workflows/broker.yml` | Täglicher Lauf und Knopf "Run workflow", veröffentlicht die App über GitHub Pages |
 
-Kursquellen: Yahoo Finance (Aktien, ETFs, bevorzugt Euro-Börsenplätze) und Binance (Krypto), nur abgeschlossene Tageskerzen.
+## Quellen und Gegenproben
+
+| Daten | Hauptquelle | Gegenprobe |
+|---|---|---|
+| Kurse ETFs, Aktien | Yahoo Finance (Xetra, Euro) | Plausibilität: Alter, Tagessprünge, Lücken |
+| Kurse Krypto | Binance (offizielle Schnittstelle) | Kraken (offizielle Schnittstelle) |
+| Wechselkurs Euro/Dollar | EZB-Referenzkurs (offiziell) | Yahoo Finance |
+| Leitzinsen | EZB (offiziell) | |
+| Nachrichten | tagesschau.de (ARD), Ressort Wirtschaft | |
+
+Jeder Wert bekommt eine Datenampel: grün bestätigt, gelb auffällig, rot nicht verwenden. Rote Werte fließen in keine Auswertung ein. Nur abgeschlossene Tageskerzen.

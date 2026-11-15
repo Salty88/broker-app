@@ -156,6 +156,24 @@
   .bk-card .bk-actions { margin-top: 2px; }
   .bk-card .bk-btn { font-size: 13.5px; padding: 8px 12px; }
   .bk-isin-sel { user-select: all; -webkit-user-select: all; font-variant-numeric: tabular-nums; }
+  .bk-makro { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--cds-gap-md); }
+  .bk-makro details { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); }
+  .bk-makro summary { cursor: pointer; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .bk-makro summary::-webkit-details-marker { display: none; }
+  .bk-makro .bk-mw { font-family: var(--font-anthropic-serif); font-size: 24px; font-variant-numeric: tabular-nums; }
+  .bk-makro .bk-k, .bk-makro .bk-q { font-size: 11.5px; color: var(--color-fg-muted); }
+  .bk-makro p { margin: var(--cds-gap-sm) 0 0; font-size: var(--cds-font-size-caption); line-height: 1.5; }
+  .bk-news { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .bk-news li { padding: var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); display: flex; flex-direction: column; gap: 4px; }
+  .bk-news a { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); text-decoration: none; }
+  .bk-news a:hover { text-decoration: underline; }
+  .bk-news .bk-dz, .bk-news .bk-wer { font-size: 11.5px; color: var(--color-fg-muted); }
+  .bk-news .bk-satz { font-size: var(--cds-font-size-caption); line-height: 1.5; }
+  .bk-news .bk-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .bk-news .bk-chip { font-size: 11px; padding: 1px 7px; }
+  .bk-alert-g { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .bk-punkte { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .bk-punkte li { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; font-size: var(--cds-font-size-caption); line-height: 1.5; }
   [data-dash-source-state=refreshing] { opacity: .5; }
 
 </style>
@@ -169,7 +187,7 @@
     <h1 class="bk-title">BroKer</h1>
     <p class="bk-lede" data-draw="lede">—</p>
     <p class="bk-sub">Regel: investiert, solange der Kurs über seinem 200-Tage-Durchschnitt liegt. Nur Regelstand, keine Anlageberatung. Du entscheidest.</p>
-    <p class="bk-stand"><span class="bk-chip" data-draw="frische">—</span> <span>Kurse vom <b data-draw="stand">—</b>, berechnet am <b data-draw="erzeugt">—</b></span></p>
+    <p class="bk-stand"><span class="bk-chip" data-draw="frische">—</span> <span>Kurse vom <b data-draw="stand">—</b>, berechnet am <b data-draw="erzeugt">—</b></span> <span class="bk-chip info" id="vertrauen-chip">—</span></p>
     <div class="bk-actions">
       <a class="bk-btn" href="https://github.com/salty88/broker-app/actions/workflows/broker.yml" target="_blank" rel="noopener">Jetzt aktualisieren</a>
       <a class="bk-btn ghost" href="https://github.com/salty88/broker-app/actions/workflows/broker.yml" target="_blank" rel="noopener">Wert hinzufügen</a>
@@ -199,6 +217,17 @@
     <h2>1 Was sich Neues ergeben hat</h2>
     <p class="bk-note">BroKer meldet hier neue Signale, Werte knapp an der Linie (Fehlsignal möglich), starke Tagesbewegungen und einen extremen RSI. Das sind Anlässe zum Hinsehen, keine Kauf- oder Verkaufsaufträge.</p>
     <ul class="bk-alerts" data-draw="hinweise" data-source="hinweise"></ul>
+
+    <h3>Wirtschaftslage aus offiziellen Quellen</h3>
+    <div class="bk-makro" id="makro"></div>
+
+    <h3>Nachrichten zu deinen Werten</h3>
+    <p class="bk-note">Aus der tagesschau (ARD), Ressort Wirtschaft, automatisch deinen Werten zugeordnet. Wenn du eine Nachricht liest, ist sie meist schon im Kurs enthalten. Sie hilft beim Verstehen, nicht beim Vorhersagen.</p>
+    <ul class="bk-news" id="news-liste"></ul>
+    <details class="bk-box bk-fold">
+      <summary>Alle Wirtschaftsmeldungen</summary>
+      <ul class="bk-news" id="news-alle"></ul>
+    </details>
   </section>
 
 
@@ -283,6 +312,7 @@
           <th scope="col" data-field="jahr_pct">12 Monate</th>
           <th scope="col" data-field="abstand_pct">Abstand Linie</th>
           <th scope="col" data-field="rsi14">RSI</th>
+          <th scope="col" data-field="vertrauen">Daten</th>
         </tr></thead>
         <tbody data-draw="tab-watchlist"></tbody>
       </table>
@@ -358,6 +388,7 @@
           <th scope="col" data-field="jahr_pct">12 Monate</th>
           <th scope="col" data-field="abstand_pct">Abstand Linie</th>
           <th scope="col" data-field="rsi14">RSI</th>
+          <th scope="col" data-field="vertrauen">Daten</th>
         </tr></thead>
         <tbody data-draw="tab-bausteine"></tbody>
       </table>
@@ -458,6 +489,19 @@
     </details>
 
     <details class="bk-box bk-fold">
+      <summary>Woher die Zahlen kommen und wie BroKer sie prüft</summary>
+      <ul>
+        <li><b>Kurse von ETFs und Aktien:</b> Yahoo Finance, Schlusskurse der Xetra in Euro. Die offizielle Kursfeststellung macht die Deutsche Börse, deren Daten sind kostenpflichtig. Trade Republic handelt über LS Exchange, dort weichen die Kurse leicht ab.</li>
+        <li><b>Krypto:</b> Binance, gegengeprüft mit der Börse Kraken. Weichen beide um mehr als 1,5 % ab, wird der Wert gelb, ab 5 % rot.</li>
+        <li><b>Wechselkurs und Leitzinsen:</b> offiziell von der Europäischen Zentralbank. Den Wechselkurs prüft BroKer zusätzlich gegen Yahoo.</li>
+        <li><b>Nachrichten:</b> tagesschau (ARD), Ressort Wirtschaft.</li>
+        <li><b>Datenampel:</b> <span class="bk-chip ok">geprüft</span> keine Auffälligkeiten. <span class="bk-chip warn">prüfen</span> zum Beispiel ein ungewöhnlicher Tagessprung, eine Lücke oder ein Kurs, der einige Tage alt ist. <span class="bk-chip bad">Fehler</span> Kurs veraltet oder von der zweiten Börse stark abweichend. Rote Werte fließen in keine Auswertung ein.</li>
+        <li><b>Qualitätsschranke:</b> Haben weniger als die Hälfte der Werte Daten, veröffentlicht BroKer gar nichts und zeigt weiter den letzten guten Stand.</li>
+        <li><b>Grenzen:</b> Die Inflationsrate fehlt bewusst: Die offiziellen Reihen von EZB und Eurostat enden derzeit im Dezember 2025. BroKer zeigt lieber nichts als eine veraltete Zahl.</li>
+      </ul>
+    </details>
+
+    <details class="bk-box bk-fold">
       <summary>Häufige Fehler</summary>
       <ul>
         <li>In Panik verkaufen, wenn die Kurse fallen. Wer in der Krise verkauft, macht Buchverluste zu echten Verlusten.</li>
@@ -520,7 +564,7 @@
       async laden() {
         for (const k of Object.keys(cache)) delete cache[k];
         const t = Date.now();
-        await Promise.all(['werte', 'verlauf'].map(async (id) => {
+        await Promise.all(['werte', 'verlauf', 'nachrichten', 'makro'].map(async (id) => {
           try {
             const r = await fetch(`data/${id}.json?t=${t}`, { cache: 'no-store' });
             if (!r.ok) throw new Error(r.status);
@@ -562,8 +606,15 @@
         hide() { t.hidden = true; }
       };
     }
-    const kern = (r) => r.gruppe === 'Watchlist' || r.gruppe === 'Baustein';
-    return { pct, num, kurz, tage, datum, tip, kern, zeitraum: 'jahr_pct', wahl: null };
+    const kern = (r) => (r.gruppe === 'Watchlist' || r.gruppe === 'Baustein') && r.vertrauen !== 'rot';
+    const AMPEL = { gruen: ['ok', 'Daten bestätigt'], gelb: ['warn', 'Daten auffällig'], rot: ['bad', 'Daten fehlerhaft'] };
+    const ampelZelle = (r) => {
+      const td = document.createElement('td'); const a = AMPEL[r.vertrauen];
+      if (!a) { td.textContent = '—'; return td; }
+      const c = document.createElement('span'); c.className = 'bk-chip ' + a[0]; c.textContent = r.vertrauen === 'gruen' ? 'geprüft' : r.vertrauen === 'gelb' ? 'prüfen' : 'Fehler';
+      c.title = (r.vertrauen_gruende || []).join(' '); td.append(c); return td;
+    };
+    return { pct, num, kurz, tage, datum, tip, kern, AMPEL, ampelZelle, zeitraum: 'jahr_pct', wahl: null };
   })();
 
   document.querySelectorAll('.bk-legend .bk-k1').forEach((e) => e.style.setProperty('--bk-sw', dash.colors[0]));
@@ -589,6 +640,10 @@
     inputs: ['werte'],
     fn: (werte) => {
       const out = [];
+      for (const w of werte.filter((x) => (x.gruppe === 'Watchlist' || x.gruppe === 'Baustein') && (x.vertrauen === 'gelb' || x.vertrauen === 'rot'))) {
+        out.push({ isin: w.isin, name: w.name, art: w.vertrauen === 'rot' ? 'Datenfehler' : 'Daten prüfen', stufe: w.vertrauen === 'rot' ? 'bad' : 'warn', wert: null,
+          text: (w.vertrauen_gruende || []).join(' ') + (w.vertrauen === 'rot' ? ' Dieser Wert fließt in keine Auswertung ein.' : '') });
+      }
       for (const w of werte.filter(BK.kern)) {
         if (w.fehler) { out.push({ isin: w.isin, name: w.name, art: 'Datenfehler', stufe: 'bad', wert: null, text: 'Keine Kursdaten: ' + w.fehler }); continue; }
         const krypto = /USDT$/.test(w.ticker);
@@ -666,15 +721,23 @@
       const t = document.createElement('div'); t.className = 'bk-what'; t.textContent = 'Keine neuen Signale und nichts Auffälliges. Kein Anlass zum Handeln.';
       li.append(c, t); el.replaceChildren(li); return;
     }
-    el.replaceChildren(...h.data.map((a, i) => {
-      const li = document.createElement('li'); li.className = 'bk-alert';
-      const c = document.createElement('span'); c.className = 'bk-chip ' + a.stufe; c.textContent = a.art;
-      const t = document.createElement('div'); t.className = 'bk-what';
-      const n = document.createElement('b'); n.textContent = BK.kurz(a.name);
-      const s = document.createElement('span'); s.textContent = a.text;
-      const isin = document.createElement('span'); isin.className = 'bk-isin'; isin.textContent = 'ISIN ' + a.isin;
-      t.append(n, s, isin);
-      li.append(c, t); return li;
+    // Ein Wert, eine Karte: alle Hinweise zu einem Wert zusammengefasst
+    const gruppen = [];
+    h.data.forEach((a) => { let g = gruppen.find((x) => x.isin === a.isin); if (!g) { g = { isin: a.isin, name: a.name, punkte: [] }; gruppen.push(g); } g.punkte.push(a); });
+    el.replaceChildren(...gruppen.map((g) => {
+      const li = document.createElement('li'); li.className = 'bk-alert bk-alert-g';
+      const kopf = document.createElement('div'); kopf.className = 'bk-what';
+      const n = document.createElement('b'); n.textContent = BK.kurz(g.name);
+      const isin = document.createElement('span'); isin.className = 'bk-isin'; isin.textContent = 'ISIN ' + g.isin;
+      kopf.append(n, isin);
+      const ul = document.createElement('ul'); ul.className = 'bk-punkte';
+      g.punkte.forEach((a) => {
+        const p = document.createElement('li');
+        const c = document.createElement('span'); c.className = 'bk-chip ' + a.stufe; c.textContent = a.art;
+        const t = document.createElement('span'); t.textContent = a.text;
+        p.append(c, t); ul.append(p);
+      });
+      li.append(kopf, ul); return li;
     }));
   });
 
@@ -732,7 +795,7 @@
       const name = td(BK.kurz(r.name), 'bk-name');
       if (r.rolle) { const s = document.createElement('span'); s.className = 'bk-role'; s.textContent = r.rolle; name.append(s); }
       if (r.fehler) {
-        const c = td('keine Daten'); c.colSpan = 9; c.style.textAlign = 'left';
+        const c = td('keine Daten'); c.colSpan = 10; c.style.textAlign = 'left';
         tr.append(name, td(r.isin), c); return tr;
       }
       const sig = document.createElement('td');
@@ -740,7 +803,7 @@
       chip.textContent = r.signal + (r.neu ? ' (neu)' : ''); sig.append(chip);
       const p = (v) => td(BK.pct(v), v == null ? '' : v >= 0 ? 'pos' : 'neg');
       tr.append(name, td(r.isin), sig, td(BK.num(r.kurs) + ' ' + (r.waehrung === 'EUR' ? '€' : r.waehrung === 'USD' ? '$' : (r.waehrung || ''))),
-        p(r.tag_pct), p(r.monat_pct), p(r.quartal_pct), p(r.ytd_pct), p(r.jahr_pct), td(BK.pct(r.abstand_pct)), td(BK.num(r.rsi14, 1)));
+        p(r.tag_pct), p(r.monat_pct), p(r.quartal_pct), p(r.ytd_pct), p(r.jahr_pct), td(BK.pct(r.abstand_pct)), td(BK.num(r.rsi14, 1)), BK.ampelZelle(r));
       return tr;
     }));
   }
@@ -1010,6 +1073,7 @@
       const chip = (t, k) => { const e = document.createElement('span'); e.className = 'bk-chip ' + k; e.textContent = t; return e; };
       chips.append(chip(r.signal === 'investiert' ? 'Trend aufwärts' : 'Trend abwärts', r.signal === 'investiert' ? 'ok' : 'warn'));
       if (r.risiko) chips.append(chip('Risiko ' + r.risiko, RANG[r.risiko] >= 3 ? 'bad' : RANG[r.risiko] === 2 ? 'warn' : 'ok'));
+      if (BK.AMPEL[r.vertrauen]) chips.append(chip(BK.AMPEL[r.vertrauen][1], BK.AMPEL[r.vertrauen][0]));
       if (r.gruppe === 'Watchlist') chips.append(chip('in deiner Watchlist', 'info'));
       if (r.gruppe === 'Baustein') chips.append(chip('Baustein', 'info'));
       c.append(chips);
@@ -1024,6 +1088,7 @@
         feld('Größter Rückgang 5 J.', BK.pct(r.dd_5j), 'neg'));
       c.append(kz);
       if (r.einordnung && r.einordnung.length) { const ul = document.createElement('ul'); r.einordnung.forEach((t) => { const li = document.createElement('li'); li.textContent = t; ul.append(li); }); c.append(ul); }
+      if (r.vertrauen_gruende && r.vertrauen_gruende.length) { const d = document.createElement('p'); d.className = 'bk-meta'; d.textContent = 'Datencheck: ' + r.vertrauen_gruende.join(' '); c.append(d); }
       const akt = document.createElement('div'); akt.className = 'bk-actions';
       akt.append(btn('Kursverlauf', () => { BK.wahl = r.isin; dash.draw('wahl'); dash.draw('kurs'); document.getElementById('verlauf').scrollIntoView({ block: 'start' }); }));
       akt.append(btn('Kauf eintragen', () => { const sel = document.getElementById('kauf-wert'); sel.value = r.isin; sel.dispatchEvent(new Event('change')); const d = document.querySelector('#depot details'); if (d) d.open = true; document.getElementById('kauf-form').scrollIntoView({ block: 'center' }); }));
@@ -1093,13 +1158,70 @@
     addEventListener('scroll', markiere, { passive: true }); markiere();
   })();
 
+  // ---------- Wirtschaftslage, Nachrichten, Datenampel gesamt ----------
+  const LAGE = (() => {
+    const de = (v, n) => v == null ? '—' : Number(v).toLocaleString('de-DE', { minimumFractionDigits: n, maximumFractionDigits: n });
+    const datumDe = (s) => { if (!s) return ''; const d = new Date(s.length <= 10 ? s + 'T00:00:00' : s); return isNaN(d) ? s : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }); };
+    function makro() {
+      const box = document.getElementById('makro'); const m = dash.data('makro');
+      if (m.status !== 'ok' || !m.data.length) {
+        const p = document.createElement('p'); p.className = 'bk-note';
+        p.textContent = m.status === 'loading' ? 'Lade ...' : 'Offizielle Daten derzeit nicht verfügbar. Sie erscheinen nach dem nächsten Lauf.';
+        box.replaceChildren(p); return;
+      }
+      box.replaceChildren(...m.data.map((r) => {
+        const d = document.createElement('details'); const s = document.createElement('summary');
+        const k = document.createElement('span'); k.className = 'bk-k'; k.textContent = r.kennzahl;
+        const v = document.createElement('span'); v.className = 'bk-mw'; v.textContent = r.einheit === '$' ? de(r.wert, 4) + ' $' : de(r.wert, 2) + ' ' + r.einheit;
+        const q = document.createElement('span'); q.className = 'bk-q'; q.textContent = r.quelle + ', ' + datumDe(r.datum);
+        s.append(k, v, q);
+        const e = document.createElement('p'); e.textContent = r.erklaerung + (r.gegenprobe ? ' ' + r.gegenprobe : '');
+        d.append(s, e); return d;
+      }));
+    }
+    function meldung(n, werte) {
+      const li = document.createElement('li');
+      const dz = document.createElement('span'); dz.className = 'bk-dz'; dz.textContent = [datumDe(n.datum), n.dachzeile, n.quelle].filter(Boolean).join(' · ');
+      const a = document.createElement('a'); a.href = n.link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = n.titel;
+      li.append(dz, a);
+      if (n.satz) { const p = document.createElement('span'); p.className = 'bk-satz'; p.textContent = n.satz; li.append(p); }
+      if (n.themen && n.themen.length) { const c = document.createElement('div'); c.className = 'bk-chips'; n.themen.forEach((t) => { const x = document.createElement('span'); x.className = 'bk-chip info'; x.textContent = t; c.append(x); }); li.append(c); }
+      const betrifft = (n.isins || []).map((i) => werte[i]).filter(Boolean);
+      if (betrifft.length) { const w = document.createElement('span'); w.className = 'bk-wer'; w.textContent = 'Betrifft: ' + betrifft.slice(0, 4).map((r) => BK.kurz(r.name)).join(', ') + (betrifft.length > 4 ? ' und ' + (betrifft.length - 4) + ' weitere' : ''); li.append(w); }
+      return li;
+    }
+    function nachrichten() {
+      const n = dash.data('nachrichten'); const w = dash.data('werte');
+      const liste = document.getElementById('news-liste'); const alle = document.getElementById('news-alle');
+      if (n.status !== 'ok') {
+        const li = document.createElement('li'); li.textContent = n.status === 'loading' ? 'Lade ...' : 'Nachrichten derzeit nicht verfügbar.';
+        liste.replaceChildren(li); alle.replaceChildren(); return;
+      }
+      // Eigene Werte (Watchlist, Prüfungen) zuerst, dann Bausteine; Vorschläge zählen nicht
+      const werte = {}; (w.data || []).forEach((r) => { werte[r.isin] = r; });
+      const eigen = (x) => (x.isins || []).some((i) => werte[i] && ['Watchlist', 'Prüfung', 'Baustein'].includes(werte[i].gruppe));
+      const passend = n.data.filter(eigen).map((x) => ({ ...x, isins: x.isins.filter((i) => werte[i] && werte[i].gruppe !== 'Kandidat') }));
+      liste.replaceChildren(...(passend.length ? passend.slice(0, 8).map((x) => meldung(x, werte)) : [Object.assign(document.createElement('li'), { textContent: 'Heute keine Meldung, die deine Werte betrifft.' })]));
+      alle.replaceChildren(...n.data.map((x) => meldung(x, werte)));
+    }
+    function vertrauenGesamt() {
+      const chip = document.getElementById('vertrauen-chip'); const w = dash.data('werte');
+      if (w.status !== 'ok') { chip.textContent = '—'; return; }
+      const rows = w.data.filter((r) => r.vertrauen);
+      const gruen = rows.filter((r) => r.vertrauen === 'gruen').length, rot = rows.filter((r) => r.vertrauen === 'rot').length;
+      chip.textContent = 'Datencheck: ' + gruen + ' von ' + rows.length + ' bestätigt';
+      chip.className = 'bk-chip ' + (rot ? 'bad' : gruen === rows.length ? 'ok' : 'warn');
+    }
+    return { zeichnen() { makro(); nachrichten(); vertrauenGesamt(); } };
+  })();
+
   DEPOT.start();
   ENTDECKEN.start();
-  dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); });
+  dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); LAGE.zeichnen(); });
   let breite = innerWidth;
   addEventListener('resize', () => { if (Math.abs(innerWidth - breite) > 20) { breite = innerWidth; dash.alles(); } });
-  document.getElementById('neu-laden').addEventListener('click', () => dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); }));
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); }); });
+  document.getElementById('neu-laden').addEventListener('click', () => dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); LAGE.zeichnen(); }));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); LAGE.zeichnen(); }); });
 
 </script>
 </body>

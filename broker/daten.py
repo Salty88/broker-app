@@ -16,6 +16,7 @@ from pathlib import Path
 import pandas as pd
 
 import broker  # noqa: E402
+import quellen  # noqa: E402
 
 BASIS = Path(__file__).resolve().parent
 
@@ -50,6 +51,7 @@ def seit_jahresbeginn(c: pd.Series) -> float | None:
 
 def zeile(w: dict, gruppe: str, rolle: str = "") -> tuple[dict, list[dict]]:
     c = broker.kurse(w["ticker"])  # einmal laden, für alles verwenden
+    zweit = quellen.kraken_schluss(w["ticker"])  # Gegenprobe, nur für Krypto vorhanden
     lage = broker.lage_aus(w, c)
     sma = c.rolling(200).mean()
     t = lage["test"]
@@ -67,6 +69,7 @@ def zeile(w: dict, gruppe: str, rolle: str = "") -> tuple[dict, list[dict]]:
     # Tagesänderung: gegenüber dem vorherigen Handelstag
     row["tag_pct"] = round(float(c.iloc[-1] / c.iloc[-2] - 1) * 100, 2)
     row.update(kennzahlen(c, w["ticker"]))
+    row.update(quellen.vertrauen(c, w["ticker"], zweit))
     jahr = c.index[-1] - pd.Timedelta(days=365)
     verlauf = [{"isin": w["isin"], "datum": str(d.date()), "kurs": round(float(k), 4),
                 "sma200": None if pd.isna(s) else round(float(s), 4)}
@@ -122,6 +125,31 @@ def einordnung(r: dict) -> list[str]:
     return t
 
 
+def schreibe_makro(out: Path, ezb, fx_yahoo) -> None:
+    """Wirtschaftslage aus offiziellen Quellen, mit Gegenprobe des Wechselkurses."""
+    rows = []
+    z = quellen.ezb_leitzinsen()
+    erkl = ("Höhere Zinsen machen Anleihen und Tagesgeld attraktiver und belasten oft Aktien und Gold. "
+            "Sinkende Zinsen wirken meist umgekehrt.")
+    if "einlagensatz" in z:
+        rows.append({"kennzahl": "EZB-Einlagensatz", "wert": z["einlagensatz"]["wert"], "einheit": "%",
+                     "datum": z["einlagensatz"]["datum"], "quelle": "Europäische Zentralbank", "erklaerung":
+                     "Zins, den Banken für Geld bei der EZB bekommen. Bestimmt maßgeblich die Tagesgeld- und Geldmarktzinsen. " + erkl})
+    if "hauptrefi" in z:
+        rows.append({"kennzahl": "EZB-Leitzins (Hauptrefinanzierung)", "wert": z["hauptrefi"]["wert"], "einheit": "%",
+                     "datum": z["hauptrefi"]["datum"], "quelle": "Europäische Zentralbank",
+                     "erklaerung": "Zins, zu dem sich Banken bei der EZB Geld leihen."})
+    if ezb:
+        abw = None if not fx_yahoo else round(abs(fx_yahoo / ezb[1] - 1) * 100, 2)
+        rows.append({"kennzahl": "Euro in US-Dollar", "wert": ezb[1], "einheit": "$", "datum": ezb[0],
+                     "quelle": "Europäische Zentralbank (Referenzkurs)",
+                     "erklaerung": "Steigt der Euro, verlieren Dollar-Anlagen wie US-Aktien und Krypto in Euro gerechnet an Wert.",
+                     "gegenprobe": None if abw is None else "Gegenprobe Yahoo Finance: Abweichung " + f"{abw:.2f}".replace(".", ",") + " %."})
+    (out / "makro.json").write_text(json.dumps({"rows": rows, "meta": [
+        {"label": "Quelle", "value": "Europäische Zentralbank, offizielle Datenschnittstelle (data-api.ecb.europa.eu)"},
+        {"label": "Abgerufen", "value": quellen.jetzt()}]}, ensure_ascii=False))
+
+
 def eurusd() -> float:
     """Letzter Schlusskurs EUR/USD (wie viele Dollar ein Euro kostet)."""
     return float(broker.kurse("EURUSD=X").iloc[-1])
@@ -146,10 +174,14 @@ def main(out: str) -> None:
     OUT = Path(out)
     OUT.mkdir(parents=True, exist_ok=True)
     zeilen, verlauf = [], []
+    # Wechselkurs: offizieller EZB-Referenzkurs, Yahoo nur zur Gegenprobe
+    ezb = quellen.ezb_eurusd()
     try:
-        fx = eurusd()
+        fx_yahoo = eurusd()
     except Exception:
-        fx = None
+        fx_yahoo = None
+    fx = ezb[1] if ezb else fx_yahoo
+    fx_quelle = f"EZB-Referenzkurs vom {ezb[0]}" if ezb else "Yahoo Finance (EZB nicht erreichbar)"
     eintraege = [(w, "Watchlist", "") for w in broker.lade_liste()]
     beobachtet = {w["isin"] for w in broker.lade_liste()}
     for b in BAUSTEINE:
@@ -190,7 +222,13 @@ def main(out: str) -> None:
         {"label": "Kursquellen", "value": "Yahoo Finance (Aktien, ETFs), Binance (Krypto); nur abgeschlossene Tageskerzen"},
         {"label": "Erzeugt", "value": pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d %H:%M UTC")},
         {"label": "EURUSD", "value": "" if fx is None else f"{fx:.4f}"},
+        {"label": "EURUSD-Quelle", "value": fx_quelle},
     ]
+    schreibe_makro(OUT, ezb, fx_yahoo)
+    meldungen = quellen.nachrichten([r for r in zeilen if not r.get("fehler") and r.get("vertrauen") != "rot"])
+    (OUT / "nachrichten.json").write_text(json.dumps({"rows": meldungen, "meta": [
+        {"label": "Quelle", "value": "tagesschau.de, Ressort Wirtschaft (Nachrichten-Schnittstelle der ARD)"},
+        {"label": "Abgerufen", "value": quellen.jetzt()}]}, ensure_ascii=False))
     (OUT / "werte.json").write_text(json.dumps({"rows": zeilen, "meta": code}, ensure_ascii=False))
     (OUT / "verlauf.json").write_text(json.dumps({"rows": verlauf, "meta": code}, ensure_ascii=False))
     print(f"{len(zeilen)} Werte, {len(verlauf)} Verlaufspunkte -> {OUT}")

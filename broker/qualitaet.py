@@ -42,6 +42,8 @@ def pruefe(ordner: Path) -> tuple[list[str], list[str], list[dict]]:
             alter = (date.today() - datetime.strptime(r["datum"], "%Y-%m-%d").date()).days
             if alter > MAX_ALTER_TAGE:
                 warnungen.append(f"{r['name']} ({r['isin']}): letzter Kurs ist {alter} Tage alt")
+        if r.get("vertrauen") == "rot":
+            warnungen.append(f"{r['name']} ({r['isin']}): Daten nicht vertrauenswürdig: {' '.join(r.get('vertrauen_gruende', []))}")
     isins = [r["isin"] for r in werte]
     if len(isins) != len(set(isins)):
         fehler.append("Ein Wert steht doppelt in den Daten.")
