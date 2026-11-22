@@ -16,16 +16,24 @@ from pathlib import Path
 import pandas as pd
 
 import broker  # noqa: E402
+import quellen  # noqa: E402
+
+BASIS = Path(__file__).resolve().parent
 
 
 
 # Beispiel-Bausteine für eine breite Verteilung (ISIN geprüft, keine Empfehlung).
 BAUSTEINE = [
-    {"isin": "IE00B3RBWM25", "ticker": "VGWL.DE", "rolle": "Welt-Aktien, ein ETF für alles (ausschüttend)"},
-    {"isin": "IE00BK5BQT80", "ticker": "VWCE.DE", "rolle": "Welt-Aktien, ein ETF für alles (thesaurierend)"},
-    {"isin": "IE00B4L5Y983", "ticker": "EUNL.DE", "rolle": "Aktien Industrieländer (ca. 70 %)"},
-    {"isin": "IE00BKM4GZ66", "ticker": "IS3N.DE", "rolle": "Aktien Schwellenländer (ca. 30 %)"},
-    {"isin": "LU0290358497", "ticker": "XEON.DE", "rolle": "Sicherheitsbaustein Geldmarkt"},
+    {"isin": "IE00B3RBWM25", "ticker": "VGWL.DE", "name": "Vanguard FTSE All-World UCITS ETF",
+     "rolle": "Welt-Aktien, ein ETF für alles (ausschüttend)"},
+    {"isin": "IE00BK5BQT80", "ticker": "VWCE.DE", "name": "Vanguard FTSE All-World UCITS ETF USD Accumulation",
+     "rolle": "Welt-Aktien, ein ETF für alles (thesaurierend)"},
+    {"isin": "IE00B4L5Y983", "ticker": "EUNL.DE", "name": "iShares Core MSCI World UCITS ETF USD (Acc)",
+     "rolle": "Aktien Industrieländer (ca. 70 %)"},
+    {"isin": "IE00BKM4GZ66", "ticker": "IS3N.DE", "name": "iShares Core MSCI EM IMI UCITS ETF USD (Acc)",
+     "rolle": "Aktien Schwellenländer (ca. 30 %)"},
+    {"isin": "LU0290358497", "ticker": "XEON.DE", "name": "Xtrackers II EUR Overnight Rate Swap UCITS ETF 1C",
+     "rolle": "Sicherheitsbaustein Geldmarkt"},
 ]
 
 
@@ -42,8 +50,9 @@ def seit_jahresbeginn(c: pd.Series) -> float | None:
 
 
 def zeile(w: dict, gruppe: str, rolle: str = "") -> tuple[dict, list[dict]]:
-    lage = broker.lage(w)
-    c = broker.kurse(w["ticker"])
+    c = broker.kurse(w["ticker"])  # einmal laden, für alles verwenden
+    zweit = quellen.kraken_schluss(w["ticker"])  # Gegenprobe, nur für Krypto vorhanden
+    lage = broker.lage_aus(w, c)
     sma = c.rolling(200).mean()
     t = lage["test"]
     row = {
@@ -59,6 +68,8 @@ def zeile(w: dict, gruppe: str, rolle: str = "") -> tuple[dict, list[dict]]:
     }
     # Tagesänderung: gegenüber dem vorherigen Handelstag
     row["tag_pct"] = round(float(c.iloc[-1] / c.iloc[-2] - 1) * 100, 2)
+    row.update(kennzahlen(c, w["ticker"]))
+    row.update(quellen.vertrauen(c, w["ticker"], zweit))
     jahr = c.index[-1] - pd.Timedelta(days=365)
     verlauf = [{"isin": w["isin"], "datum": str(d.date()), "kurs": round(float(k), 4),
                 "sma200": None if pd.isna(s) else round(float(s), 4)}
@@ -66,15 +77,92 @@ def zeile(w: dict, gruppe: str, rolle: str = "") -> tuple[dict, list[dict]]:
     return row, verlauf
 
 
+def rendite_pa(c: pd.Series, jahre: int) -> float | None:
+    vorher = c[c.index <= c.index[-1] - pd.Timedelta(days=365 * jahre)]
+    if vorher.empty:
+        return None
+    return round(float((c.iloc[-1] / vorher.iloc[-1]) ** (1 / jahre) - 1) * 100, 1)
+
+
+def kennzahlen(c: pd.Series, ticker: str) -> dict:
+    """Schwankung und Rückgang der letzten 5 Jahre, Renditen, Historie, Risikoklasse."""
+    tpj = 365 if ticker.endswith("USDT") else 252
+    fuenf = c[c.index >= c.index[-1] - pd.Timedelta(days=5 * 365)]
+    vola = float(fuenf.pct_change().std() * (tpj ** 0.5) * 100)
+    dd = float((fuenf / fuenf.cummax() - 1).min() * 100)
+    klasse = ("sehr gering" if vola < 5 else "gering" if vola < 12 else "mittel" if vola < 20
+              else "hoch" if vola < 30 else "sehr hoch")
+    return {"vola_pa": round(vola, 1), "dd_5j": round(dd, 1), "risiko": klasse,
+            "rendite_3j_pa": rendite_pa(c, 3), "rendite_5j_pa": rendite_pa(c, 5),
+            "historie_jahre": round((c.index[-1] - c.index[0]).days / 365.25, 1)}
+
+
+def einordnung(r: dict) -> list[str]:
+    """Nüchterne, regelbasierte Einordnung. Keine Empfehlung."""
+    t = []
+    name, kat = r.get("name", ""), r.get("kategorie", "")
+    breit = any(k in name + " " + kat for k in ("World", "ACWI", "All Country", "All-World", "Welt"))
+    if r.get("fondsart") == "Gold-ETC":
+        t.append("Gold: keine Zinsen oder Dividenden, oft gegenläufig zu Aktien. Als kleine Beimischung üblich.")
+    elif "Anleihe" in kat or "Bond" in name:
+        t.append("Anleihen: meist ruhiger als Aktien, dienen als Stabilitätsbaustein.")
+    elif "Small Cap" in name or "Nebenwerte" in kat:
+        t.append("Nebenwerte weltweit: breit gestreut, aber nur kleinere Firmen. Eher Ergänzung als Basis.")
+    elif breit:
+        t.append("Breit gestreut über viele Länder und Firmen. Eignet sich als Basis.")
+    elif "Themen" in kat or "Energy" in name:
+        t.append("Themen-ETF: wenige Firmen einer Branche, Klumpenrisiko. Höchstens als kleine Beimischung.")
+    else:
+        t.append("Auf eine Region oder Branche begrenzt. Eher Ergänzung als Basis.")
+    t.append(f"Schwankung {r['vola_pa']:.0f} % pro Jahr, Risiko {r['risiko']}. "
+             f"Größter Rückgang in 5 Jahren: {r['dd_5j']:.0f} %.")
+    if r.get("historie_jahre", 0) < 5:
+        t.append(f"Nur {r['historie_jahre']:.1f} Jahre Kurshistorie, die Zahlen sind wenig belastbar.")
+    t.append("Trend aktuell aufwärts (über der 200-Tage-Linie)." if r["signal"] == "investiert"
+             else "Trend aktuell abwärts (unter der 200-Tage-Linie).")
+    if r["regel_dd"] > r["halten_dd"] + 5:
+        t.append("Die 200-Tage-Regel hätte die Rückgänge hier deutlich gemildert.")
+    return t
+
+
+def schreibe_makro(out: Path, ezb, fx_yahoo) -> None:
+    """Wirtschaftslage aus offiziellen Quellen, mit Gegenprobe des Wechselkurses."""
+    rows = []
+    z = quellen.ezb_leitzinsen()
+    erkl = ("Höhere Zinsen machen Anleihen und Tagesgeld attraktiver und belasten oft Aktien und Gold. "
+            "Sinkende Zinsen wirken meist umgekehrt.")
+    if "einlagensatz" in z:
+        rows.append({"kennzahl": "EZB-Einlagensatz", "wert": z["einlagensatz"]["wert"], "einheit": "%",
+                     "datum": z["einlagensatz"]["datum"], "quelle": "Europäische Zentralbank", "erklaerung":
+                     "Zins, den Banken für Geld bei der EZB bekommen. Bestimmt maßgeblich die Tagesgeld- und Geldmarktzinsen. " + erkl})
+    if "hauptrefi" in z:
+        rows.append({"kennzahl": "EZB-Leitzins (Hauptrefinanzierung)", "wert": z["hauptrefi"]["wert"], "einheit": "%",
+                     "datum": z["hauptrefi"]["datum"], "quelle": "Europäische Zentralbank",
+                     "erklaerung": "Zins, zu dem sich Banken bei der EZB Geld leihen."})
+    if ezb:
+        abw = None if not fx_yahoo else round(abs(fx_yahoo / ezb[1] - 1) * 100, 2)
+        rows.append({"kennzahl": "Euro in US-Dollar", "wert": ezb[1], "einheit": "$", "datum": ezb[0],
+                     "quelle": "Europäische Zentralbank (Referenzkurs)",
+                     "erklaerung": "Steigt der Euro, verlieren Dollar-Anlagen wie US-Aktien und Krypto in Euro gerechnet an Wert.",
+                     "gegenprobe": None if abw is None else "Gegenprobe Yahoo Finance: Abweichung " + f"{abw:.2f}".replace(".", ",") + " %."})
+    (out / "makro.json").write_text(json.dumps({"rows": rows, "meta": [
+        {"label": "Quelle", "value": "Europäische Zentralbank, offizielle Datenschnittstelle (data-api.ecb.europa.eu)"},
+        {"label": "Abgerufen", "value": quellen.jetzt()}]}, ensure_ascii=False))
+
+
 def eurusd() -> float:
     """Letzter Schlusskurs EUR/USD (wie viele Dollar ein Euro kostet)."""
     return float(broker.kurse("EURUSD=X").iloc[-1])
 
 
-def fondsart(isin: str, name: str, ticker: str) -> str:
+def fondsart(isin: str, name: str, ticker: str, kategorie: str = "") -> str:
     """Grobe Einordnung für die Steuerschätzung (Teilfreistellung)."""
+    if any(k in name + " " + kategorie for k in ("Bond", "Anleihe", "Govt")):
+        return "Sonstiger Fonds"
     if ticker.endswith("USDT"):
         return "Krypto"
+    if "Gold" in name and "ETF" not in name:
+        return "Gold-ETC"
     if any(k in name for k in ("Overnight", "Money Market", "Geldmarkt")):
         return "Sonstiger Fonds"
     if "ETF" in name or "UCITS" in name:
@@ -86,22 +174,40 @@ def main(out: str) -> None:
     OUT = Path(out)
     OUT.mkdir(parents=True, exist_ok=True)
     zeilen, verlauf = [], []
+    # Wechselkurs: offizieller EZB-Referenzkurs, Yahoo nur zur Gegenprobe
+    ezb = quellen.ezb_eurusd()
     try:
-        fx = eurusd()
+        fx_yahoo = eurusd()
     except Exception:
-        fx = None
+        fx_yahoo = None
+    fx = ezb[1] if ezb else fx_yahoo
+    fx_quelle = f"EZB-Referenzkurs vom {ezb[0]}" if ezb else "Yahoo Finance (EZB nicht erreichbar)"
     eintraege = [(w, "Watchlist", "") for w in broker.lade_liste()]
     beobachtet = {w["isin"] for w in broker.lade_liste()}
     for b in BAUSTEINE:
         if b["isin"] not in beobachtet:
-            m = broker.meta(b["ticker"]) or {}
-            w = {"isin": b["isin"], "ticker": b["ticker"], "name": m.get("longName") or b["isin"],
-                 "waehrung": m.get("currency"), "boerse": m.get("fullExchangeName")}
+            w = {"isin": b["isin"], "ticker": b["ticker"], "name": b["name"], "waehrung": "EUR", "boerse": "XETRA"}
             eintraege.append((w, "Baustein", b["rolle"]))
+    gesehen = {w["isin"] for w, _, _ in eintraege}
+    for datei, gruppe in ((BASIS.parent / "pruefliste.json", "Prüfung"), (BASIS / "kandidaten.json", "Kandidat")):
+        liste = json.loads(datei.read_text())["werte"] if datei.exists() else []
+        for k in liste:
+            if k["isin"] in gesehen:
+                continue
+            gesehen.add(k["isin"])
+            # Namen stehen in der Liste; nur wenn einer fehlt, wird nachgeschlagen
+            m = {} if k.get("name") else (broker.meta(k["ticker"]) or {})
+            w = {"isin": k["isin"], "ticker": k["ticker"], "name": k.get("name") or m.get("longName") or k["isin"],
+                 "waehrung": k.get("waehrung") or m.get("currency") or "EUR",
+                 "boerse": k.get("boerse") or m.get("fullExchangeName") or "XETRA",
+                 "kategorie": k.get("kategorie", "")}
+            eintraege.append((w, gruppe, k.get("kategorie", "")))
     for w, gruppe, rolle in eintraege:
         try:
             r, v = zeile(w, gruppe, rolle)
-            r["fondsart"] = fondsart(r["isin"], r["name"], r["ticker"])
+            r["fondsart"] = fondsart(r["isin"], r["name"], r["ticker"], w.get("kategorie", ""))
+            r["kategorie"] = w.get("kategorie", rolle)
+            r["einordnung"] = einordnung(r)
             if r.get("waehrung") == "EUR":
                 r["kurs_eur"] = r["kurs"]
             elif r.get("waehrung") == "USD" and fx:
@@ -116,7 +222,13 @@ def main(out: str) -> None:
         {"label": "Kursquellen", "value": "Yahoo Finance (Aktien, ETFs), Binance (Krypto); nur abgeschlossene Tageskerzen"},
         {"label": "Erzeugt", "value": pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d %H:%M UTC")},
         {"label": "EURUSD", "value": "" if fx is None else f"{fx:.4f}"},
+        {"label": "EURUSD-Quelle", "value": fx_quelle},
     ]
+    schreibe_makro(OUT, ezb, fx_yahoo)
+    meldungen = quellen.nachrichten([r for r in zeilen if not r.get("fehler") and r.get("vertrauen") != "rot"])
+    (OUT / "nachrichten.json").write_text(json.dumps({"rows": meldungen, "meta": [
+        {"label": "Quelle", "value": "tagesschau.de, Ressort Wirtschaft (Nachrichten-Schnittstelle der ARD)"},
+        {"label": "Abgerufen", "value": quellen.jetzt()}]}, ensure_ascii=False))
     (OUT / "werte.json").write_text(json.dumps({"rows": zeilen, "meta": code}, ensure_ascii=False))
     (OUT / "verlauf.json").write_text(json.dumps({"rows": verlauf, "meta": code}, ensure_ascii=False))
     print(f"{len(zeilen)} Werte, {len(verlauf)} Verlaufspunkte -> {OUT}")

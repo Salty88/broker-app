@@ -37,14 +37,18 @@
     --cds-surface-popover: #1b2421; --cds-border: #2c3733; --cds-shadow-popover: 0 6px 24px rgba(0, 0, 0, .5);
     color-scheme: dark;
   } }
+  [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
+  .bk-meldung:empty { display: none; }
+  .bk-meldung { color: var(--accent); font-weight: var(--cds-font-weight-medium); }
+  .bk-chart svg { touch-action: pan-y; }
   body { margin: 0; background: var(--color-bg); color: var(--color-fg); font: var(--cds-font-size-body)/1.45 var(--font-anthropic-sans); }
   .bk-wrap { max-width: 980px; margin: 0 auto; padding-block: max(16px, env(safe-area-inset-top)) max(32px, env(safe-area-inset-bottom)); padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
   .bk-actions { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); margin-top: var(--cds-gap-sm); }
   .bk-btn { font: inherit; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); padding: 10px 16px; border-radius: 10px; border: 1px solid var(--accent); background: var(--accent); color: #fff; text-decoration: none; cursor: pointer; }
   .bk-btn.ghost { background: transparent; color: var(--accent); }
   .bk-btn:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
-  .bk-sec { scroll-margin-top: 16px; }
+  .bk-sec { scroll-margin-top: 64px; }
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 
 
@@ -97,8 +101,10 @@
   .bk-foot summary { cursor: pointer; color: var(--color-fg); }
   .bk-stand { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-sm); margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
   .bk-stand b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
-  .bk-nav { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); margin-top: var(--cds-gap-xs); }
-  .bk-nav a { font-size: var(--cds-font-size-caption); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--color-border-line); color: var(--color-fg); text-decoration: none; background: var(--color-bg); }
+  .bk-nav { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: nowrap; gap: var(--cds-gap-xs); overflow-x: auto; scrollbar-width: none; background: var(--color-bg); margin-inline: calc(-1 * max(16px, env(safe-area-inset-left))); padding: 8px max(16px, env(safe-area-inset-left)); border-bottom: 1px solid var(--color-border-line); }
+  .bk-nav::-webkit-scrollbar { display: none; }
+  .bk-nav a { flex: none; white-space: nowrap; font-size: var(--cds-font-size-caption); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--color-border-line); color: var(--color-fg); text-decoration: none; background: var(--color-panel); }
+  .bk-nav a[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
   .bk-nav a:hover { border-color: var(--color-fg-muted); }
   .bk-nav a:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .bk-box { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
@@ -107,6 +113,8 @@
   .bk-tiles4 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important; }
   .bk-tile .bk-d { font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
   #depot-summe .bk-v { white-space: nowrap; font-size: clamp(20px, 5.4vw, 30px); }
+  #kacheln .bk-tile { justify-content: space-between; }
+  #kacheln .bk-v { white-space: nowrap; font-size: clamp(18px, 5.4vw, 30px); }
   @media (max-width: 640px) {
     #depot-tabelle thead { display: none; }
     #depot-tabelle, #depot-tabelle tbody { display: block; }
@@ -130,6 +138,42 @@
   .bk-del { font: inherit; border: none; background: none; color: var(--color-bad); cursor: pointer; padding: 4px 6px; }
   .bk-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .bk-table td.bk-hint { white-space: normal; min-width: 160px; text-align: left; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .bk-sec h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-sm) 0 0; }
+  .bk-pruef { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .bk-pruef h3 { margin: 0; }
+  .bk-pruefzeile { display: flex; gap: var(--cds-gap-sm); }
+  .bk-pruefzeile input { flex: 1; min-width: 0; font: inherit; font-size: 17px; letter-spacing: .06em; text-transform: uppercase; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); }
+  .bk-pruefzeile input[aria-invalid="true"] { border-color: var(--color-bad); }
+  .bk-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--cds-gap-md); }
+  .bk-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+  .bk-card h4 { margin: 0; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+  .bk-card .bk-meta { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .bk-card .bk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bk-kz { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-variant-numeric: tabular-nums; }
+  .bk-kz div { display: flex; flex-direction: column; }
+  .bk-kz span:first-child { font-size: 11.5px; color: var(--color-fg-muted); }
+  .bk-card ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: var(--cds-font-size-caption); line-height: 1.5; }
+  .bk-card .bk-actions { margin-top: 2px; }
+  .bk-card .bk-btn { font-size: 13.5px; padding: 8px 12px; }
+  .bk-isin-sel { user-select: all; -webkit-user-select: all; font-variant-numeric: tabular-nums; }
+  .bk-makro { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--cds-gap-md); }
+  .bk-makro details { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); }
+  .bk-makro summary { cursor: pointer; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .bk-makro summary::-webkit-details-marker { display: none; }
+  .bk-makro .bk-mw { font-family: var(--font-anthropic-serif); font-size: 24px; font-variant-numeric: tabular-nums; }
+  .bk-makro .bk-k, .bk-makro .bk-q { font-size: 11.5px; color: var(--color-fg-muted); }
+  .bk-makro p { margin: var(--cds-gap-sm) 0 0; font-size: var(--cds-font-size-caption); line-height: 1.5; }
+  .bk-news { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .bk-news li { padding: var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); display: flex; flex-direction: column; gap: 4px; }
+  .bk-news a { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); text-decoration: none; }
+  .bk-news a:hover { text-decoration: underline; }
+  .bk-news .bk-dz, .bk-news .bk-wer { font-size: 11.5px; color: var(--color-fg-muted); }
+  .bk-news .bk-satz { font-size: var(--cds-font-size-caption); line-height: 1.5; }
+  .bk-news .bk-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .bk-news .bk-chip { font-size: 11px; padding: 1px 7px; }
+  .bk-alert-g { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .bk-punkte { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .bk-punkte li { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; font-size: var(--cds-font-size-caption); line-height: 1.5; }
   [data-dash-source-state=refreshing] { opacity: .5; }
 
 </style>
@@ -143,35 +187,47 @@
     <h1 class="bk-title">BroKer</h1>
     <p class="bk-lede" data-draw="lede">—</p>
     <p class="bk-sub">Regel: investiert, solange der Kurs über seinem 200-Tage-Durchschnitt liegt. Nur Regelstand, keine Anlageberatung. Du entscheidest.</p>
-    <p class="bk-stand"><span class="bk-chip" data-draw="frische">—</span> <span>Kurse vom <b data-draw="stand">—</b>, berechnet am <b data-draw="erzeugt">—</b></span></p>
+    <p class="bk-stand"><span class="bk-chip" data-draw="frische">—</span> <span>Kurse vom <b data-draw="stand">—</b>, berechnet am <b data-draw="erzeugt">—</b></span> <span class="bk-chip info" id="vertrauen-chip">—</span></p>
     <div class="bk-actions">
       <a class="bk-btn" href="https://github.com/salty88/broker-app/actions/workflows/broker.yml" target="_blank" rel="noopener">Jetzt aktualisieren</a>
       <a class="bk-btn ghost" href="https://github.com/salty88/broker-app/actions/workflows/broker.yml" target="_blank" rel="noopener">Wert hinzufügen</a>
       <button class="bk-btn ghost" type="button" id="neu-laden">App neu laden</button>
     </div>
-    <nav class="bk-nav" aria-label="Bereiche">
-      <a href="#hinweise" data-ziel="hinweise">1 Neu</a>
-      <a href="#depot" data-ziel="depot">2 Mein Depot</a>
-      <a href="#watchlist" data-ziel="watchlist">3 Watchlist</a>
-      <a href="#entwicklung" data-ziel="entwicklung">4 Entwicklung</a>
-      <a href="#verlauf" data-ziel="verlauf">5 Kursverlauf</a>
-      <a href="#bausteine" data-ziel="bausteine">6 Bausteine</a>
-      <a href="#test" data-ziel="test">7 Regeltest</a>
-      <a href="#lernen" data-ziel="lernen">8 Lernen</a>
-      <a href="#aktualisieren" data-ziel="aktualisieren">Aktualisieren</a>
-    </nav>
   </header>
+  <nav class="bk-nav" aria-label="Bereiche">
+    <a href="#hinweise" data-ziel="hinweise">1 Neu</a>
+    <a href="#depot" data-ziel="depot">2 Mein Depot</a>
+    <a href="#watchlist" data-ziel="watchlist">3 Watchlist</a>
+    <a href="#entdecken" data-ziel="entdecken">4 Prüfen &amp; Entdecken</a>
+    <a href="#entwicklung" data-ziel="entwicklung">5 Entwicklung</a>
+    <a href="#verlauf" data-ziel="verlauf">6 Kursverlauf</a>
+    <a href="#bausteine" data-ziel="bausteine">7 Bausteine</a>
+    <a href="#test" data-ziel="test">8 Regeltest</a>
+    <a href="#lernen" data-ziel="lernen">9 Lernen</a>
+    <a href="#aktualisieren" data-ziel="aktualisieren">Aktualisieren</a>
+  </nav>
 
   <section class="bk-tiles" id="kacheln" aria-label="Überblick">
-    <div class="bk-tile"><span class="bk-k">Über der 200-Tage-Linie</span><span class="bk-v"><span data-draw="investiert" data-source="ueberblick" data-field="investiert" data-row="0">—</span> von <span data-draw="gesamt" data-source="ueberblick" data-field="gesamt" data-row="0">—</span></span></div>
-    <div class="bk-tile"><span class="bk-k">Neue Signale seit dem letzten Handelstag</span><span class="bk-v" data-draw="neu" data-source="ueberblick" data-field="neu" data-row="0">—</span></div>
-    <div class="bk-tile"><span class="bk-k">Hinweise, die du dir ansehen solltest</span><span class="bk-v" data-draw="anzahl-hinweise" data-source="ueberblick" data-field="hinweise" data-row="0">—</span></div>
+    <div class="bk-tile"><span class="bk-k">Über der Linie</span><span class="bk-v"><span data-draw="investiert" data-source="ueberblick" data-field="investiert" data-row="0">—</span> von <span data-draw="gesamt" data-source="ueberblick" data-field="gesamt" data-row="0">—</span></span></div>
+    <div class="bk-tile"><span class="bk-k">Neue Signale</span><span class="bk-v" data-draw="neu" data-source="ueberblick" data-field="neu" data-row="0">—</span></div>
+    <div class="bk-tile"><span class="bk-k">Hinweise</span><span class="bk-v" data-draw="anzahl-hinweise" data-source="ueberblick" data-field="hinweise" data-row="0">—</span></div>
   </section>
 
   <section class="bk-sec" id="hinweise">
     <h2>1 Was sich Neues ergeben hat</h2>
     <p class="bk-note">BroKer meldet hier neue Signale, Werte knapp an der Linie (Fehlsignal möglich), starke Tagesbewegungen und einen extremen RSI. Das sind Anlässe zum Hinsehen, keine Kauf- oder Verkaufsaufträge.</p>
     <ul class="bk-alerts" data-draw="hinweise" data-source="hinweise"></ul>
+
+    <h3>Wirtschaftslage aus offiziellen Quellen</h3>
+    <div class="bk-makro" id="makro"></div>
+
+    <h3>Nachrichten zu deinen Werten</h3>
+    <p class="bk-note">Aus der tagesschau (ARD), Ressort Wirtschaft, automatisch deinen Werten zugeordnet. Wenn du eine Nachricht liest, ist sie meist schon im Kurs enthalten. Sie hilft beim Verstehen, nicht beim Vorhersagen.</p>
+    <ul class="bk-news" id="news-liste"></ul>
+    <details class="bk-box bk-fold">
+      <summary>Alle Wirtschaftsmeldungen</summary>
+      <ul class="bk-news" id="news-alle"></ul>
+    </details>
   </section>
 
 
@@ -194,14 +250,15 @@
       <form class="bk-form" id="kauf-form" autocomplete="off">
         <label>Wert<select id="kauf-wert" required></select></label>
         <label>Kaufdatum<input id="kauf-datum" type="date" required></label>
-        <label>Stück<input id="kauf-stueck" type="number" inputmode="decimal" step="any" min="0" required placeholder="z. B. 2,5"></label>
-        <label>Kaufkurs je Stück in €<input id="kauf-kurs" type="number" inputmode="decimal" step="any" min="0" required></label>
-        <label>Gebühren in €<input id="kauf-gebuehr" type="number" inputmode="decimal" step="any" min="0" value="1"></label>
+        <label>Stück<input id="kauf-stueck" type="text" inputmode="decimal" required placeholder="z. B. 2,5"></label>
+        <label>Kaufkurs je Stück in €<input id="kauf-kurs" type="text" inputmode="decimal" required></label>
+        <label>Gebühren in €<input id="kauf-gebuehr" type="text" inputmode="decimal" value="1"></label>
         <label>Art (für die Steuer)<select id="kauf-art">
-          <option>Aktien-ETF</option><option>Mischfonds</option><option>Sonstiger Fonds</option><option>Aktie</option><option>Krypto</option>
+          <option>Aktien-ETF</option><option>Mischfonds</option><option>Sonstiger Fonds</option><option>Aktie</option><option>Gold-ETC</option><option>Krypto</option>
         </select></label>
         <button class="bk-btn" type="submit">Kauf speichern</button>
       </form>
+      <p class="bk-note bk-meldung" id="kauf-meldung" role="status"></p>
       <p class="bk-note">Den Kaufkurs findest du in Trade Republic unter dem Wert bei deiner Position oder in der Kaufabrechnung. Fehlt ein Wert in der Liste, nimm ihn zuerst per ISIN mit "Wert hinzufügen" auf. Ein Sparplan mit vielen kleinen Käufen lässt sich als ein Eintrag mit Durchschnittskurs erfassen.</p>
     </details>
 
@@ -210,7 +267,7 @@
       <form class="bk-form" id="steuer-form">
         <label>Sparer-Pauschbetrag<select id="st-pausch"><option value="1000">1.000 € (allein)</option><option value="2000">2.000 € (verheiratet, gemeinsam)</option><option value="0">schon anderweitig verbraucht</option></select></label>
         <label>Kirchensteuer<select id="st-kirche"><option value="0">keine</option><option value="0.08">8 % (Bayern, Baden-Württemberg)</option><option value="0.09">9 % (übrige Länder)</option></select></label>
-        <label>Dein persönlicher Steuersatz für Krypto (%)<input id="st-satz" type="number" inputmode="decimal" min="0" max="45" step="1" value="30"></label>
+        <label>Dein persönlicher Steuersatz für Krypto und Gold (%)<input id="st-satz" type="text" inputmode="decimal" value="30"></label>
       </form>
       <p class="bk-note">Der persönliche Steuersatz gilt nur für Krypto-Gewinne innerhalb eines Jahres. Er hängt von deinem gesamten Einkommen ab. Wenn du ihn nicht kennst, steht er in deinem letzten Steuerbescheid oder du fragst deinen Steuerberater.</p>
     </details>
@@ -232,7 +289,7 @@
     <details class="bk-foot">
       <summary>Wie BroKer die Steuer schätzt</summary>
       <p><b>Aktien, ETFs, Fonds:</b> Abgeltungsteuer 25 % plus Solidaritätszuschlag 5,5 % darauf, also 26,375 %, mit Kirchensteuer etwas mehr (rund 27,8 bzw. 28 %). Bei Aktien-ETFs sind 30 % des Gewinns steuerfrei (Teilfreistellung), bei Mischfonds 15 %. Vom gesamten Gewinn geht zuerst der Sparer-Pauschbetrag ab.</p>
-      <p><b>Krypto:</b> Gewinne sind nach mehr als einem Jahr Haltedauer steuerfrei. Innerhalb eines Jahres gilt dein persönlicher Steuersatz, aber nur, wenn alle Krypto-Gewinne des Jahres zusammen 1.000 € erreichen (Freigrenze: darüber ist alles steuerpflichtig).</p>
+      <p><b>Krypto und Gold-ETCs mit Lieferanspruch (z. B. Xetra-Gold):</b> Gewinne sind nach mehr als einem Jahr Haltedauer steuerfrei. Innerhalb eines Jahres gilt dein persönlicher Steuersatz, aber nur, wenn alle Krypto-Gewinne des Jahres zusammen 1.000 € erreichen (Freigrenze: darüber ist alles steuerpflichtig).</p>
       <p><b>Vereinfacht:</b> Verluste werden hier mit Gewinnen verrechnet. In Wirklichkeit dürfen Verluste aus Einzelaktien nur mit Gewinnen aus Einzelaktien verrechnet werden. Die Vorabpauschale bei thesaurierenden ETFs und bereits in diesem Jahr realisierte Gewinne sind nicht berücksichtigt. Trade Republic führt die Steuer auf Wertpapiere beim Verkauf automatisch ab. Krypto-Gewinne gibst du selbst in der Steuererklärung an.</p>
       <p>Das ist eine Schätzung, keine Steuerberatung.</p>
     </details>
@@ -255,14 +312,44 @@
           <th scope="col" data-field="jahr_pct">12 Monate</th>
           <th scope="col" data-field="abstand_pct">Abstand Linie</th>
           <th scope="col" data-field="rsi14">RSI</th>
+          <th scope="col" data-field="vertrauen">Daten</th>
         </tr></thead>
         <tbody data-draw="tab-watchlist"></tbody>
       </table>
     </div>
   </section>
 
+  <section class="bk-sec" id="entdecken">
+    <h2>4 Prüfen &amp; Entdecken</h2>
+    <p class="bk-note">Prüf eine ISIN, bevor du investierst, oder sieh dir an, was BroKer bei bekannten ETFs gefunden hat. Alle Werte werden nach denselben Kriterien analysiert: Trend, Schwankung, größter Rückgang, Rendite und Regeltest.</p>
+
+    <div class="bk-box bk-pruef">
+      <h3>ISIN prüfen</h3>
+      <form class="bk-pruefzeile" id="pruef-form" autocomplete="off">
+        <label class="bk-sr" for="pruef-isin">ISIN</label>
+        <input id="pruef-isin" type="text" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="14" placeholder="z. B. IE00B6R52259">
+        <button class="bk-btn" type="submit">Prüfen</button>
+      </form>
+      <p class="bk-note" id="pruef-status" role="status">Die ISIN findest du in Trade Republic beim Wert unter "Info" oder im Wertpapier-Steckbrief.</p>
+      <div id="pruef-ergebnis"></div>
+    </div>
+
+    <h3>Deine Prüfungen</h3>
+    <div class="bk-cards" id="pruef-liste"></div>
+    <p class="bk-note" id="pruef-leer">Noch keine geprüften Werte. Gib oben eine ISIN ein.</p>
+
+    <h3>Von BroKer gefunden</h3>
+    <p class="bk-note">Bekannte, breit gehandelte ETFs und ein Gold-ETC, täglich neu analysiert. Das ist eine Auswahl zum Vergleichen, keine Empfehlung. Breite Welt-ETFs eignen sich als Basis, alles Engere eher als kleine Beimischung.</p>
+    <div class="bk-seg" role="group" aria-label="Sortierung">
+      <button type="button" data-sort="risiko" aria-pressed="true">Nach Risiko</button>
+      <button type="button" data-sort="rendite" aria-pressed="false">Nach 5-Jahres-Rendite</button>
+      <button type="button" data-sort="trend" aria-pressed="false">Trend aufwärts zuerst</button>
+    </div>
+    <div class="bk-cards" id="kand-liste"></div>
+  </section>
+
   <section class="bk-sec" id="entwicklung">
-    <h2>4 Entwicklung im Zeitraum</h2>
+    <h2>5 Entwicklung im Zeitraum</h2>
     <div class="bk-seg" role="group" aria-label="Zeitraum">
       <button type="button" data-zr="tag_pct" aria-pressed="false">Tag</button>
       <button type="button" data-zr="monat_pct" aria-pressed="false">Monat</button>
@@ -275,7 +362,7 @@
   </section>
 
   <section class="bk-sec" id="verlauf">
-    <h2>5 Kursverlauf der letzten 12 Monate</h2>
+    <h2>6 Kursverlauf der letzten 12 Monate</h2>
     <div class="bk-row">
       <select class="dash-select" id="wert-wahl" data-draw="wahl" aria-label="Wert auswählen" data-source="werte"></select>
       <div class="bk-legend"><span class="bk-k1">Schlusskurs</span><span class="dash" style="--bk-sw: var(--cds-chart-muted)">200-Tage-Linie</span></div>
@@ -285,7 +372,7 @@
   </section>
 
   <section class="bk-sec" id="bausteine">
-    <h2>6 Bausteine für eine breite Verteilung</h2>
+    <h2>7 Bausteine für eine breite Verteilung</h2>
     <p class="bk-note">Beispiel-ETFs, die Verbraucherschützer für eine breite Streuung typischerweise nennen. Zur Orientierung, keine Empfehlung. Wie du aufteilst, hängt von deiner Anlagedauer und deiner Risikobereitschaft ab.</p>
     <div class="bk-tablewrap">
       <table class="bk-table" data-source="werte" data-row-key="isin">
@@ -301,6 +388,7 @@
           <th scope="col" data-field="jahr_pct">12 Monate</th>
           <th scope="col" data-field="abstand_pct">Abstand Linie</th>
           <th scope="col" data-field="rsi14">RSI</th>
+          <th scope="col" data-field="vertrauen">Daten</th>
         </tr></thead>
         <tbody data-draw="tab-bausteine"></tbody>
       </table>
@@ -308,7 +396,7 @@
   </section>
 
   <section class="bk-sec" id="test">
-    <h2>7 Hat die Regel bisher etwas gebracht?</h2>
+    <h2>8 Hat die Regel bisher etwas gebracht?</h2>
     <p class="bk-note">Rückblick über bis zu 15 Jahre: Rendite pro Jahr und größter Rückgang vom Höchststand, Regel gegen einfaches Halten, mit 0,1 % Gebühr je Wechsel. Vergangene Ergebnisse garantieren nichts.</p>
     <div class="bk-tablewrap">
       <table class="bk-table" data-source="werte" data-row-key="isin">
@@ -327,7 +415,7 @@
   </section>
 
   <section class="bk-sec" id="lernen">
-    <h2>8 Lernen</h2>
+    <h2>9 Lernen</h2>
     <p class="bk-note">Kurze Anleitungen zum Nachlesen. Zum Vertiefen eignen sich die Seiten der Verbraucherzentralen, der Finanzaufsicht BaFin und von Stiftung Warentest (Finanztest).</p>
 
     <details class="bk-box bk-fold">
@@ -401,6 +489,19 @@
     </details>
 
     <details class="bk-box bk-fold">
+      <summary>Woher die Zahlen kommen und wie BroKer sie prüft</summary>
+      <ul>
+        <li><b>Kurse von ETFs und Aktien:</b> Yahoo Finance, Schlusskurse der Xetra in Euro. Die offizielle Kursfeststellung macht die Deutsche Börse, deren Daten sind kostenpflichtig. Trade Republic handelt über LS Exchange, dort weichen die Kurse leicht ab.</li>
+        <li><b>Krypto:</b> Binance, gegengeprüft mit der Börse Kraken. Weichen beide um mehr als 1,5 % ab, wird der Wert gelb, ab 5 % rot.</li>
+        <li><b>Wechselkurs und Leitzinsen:</b> offiziell von der Europäischen Zentralbank. Den Wechselkurs prüft BroKer zusätzlich gegen Yahoo.</li>
+        <li><b>Nachrichten:</b> tagesschau (ARD), Ressort Wirtschaft.</li>
+        <li><b>Datenampel:</b> <span class="bk-chip ok">geprüft</span> keine Auffälligkeiten. <span class="bk-chip warn">prüfen</span> zum Beispiel ein ungewöhnlicher Tagessprung, eine Lücke oder ein Kurs, der einige Tage alt ist. <span class="bk-chip bad">Fehler</span> Kurs veraltet oder von der zweiten Börse stark abweichend. Rote Werte fließen in keine Auswertung ein.</li>
+        <li><b>Qualitätsschranke:</b> Haben weniger als die Hälfte der Werte Daten, veröffentlicht BroKer gar nichts und zeigt weiter den letzten guten Stand.</li>
+        <li><b>Grenzen:</b> Die Inflationsrate fehlt bewusst: Die offiziellen Reihen von EZB und Eurostat enden derzeit im Dezember 2025. BroKer zeigt lieber nichts als eine veraltete Zahl.</li>
+      </ul>
+    </details>
+
+    <details class="bk-box bk-fold">
       <summary>Häufige Fehler</summary>
       <ul>
         <li>In Panik verkaufen, wenn die Kurse fallen. Wer in der Krise verkauft, macht Buchverluste zu echten Verlusten.</li>
@@ -463,7 +564,7 @@
       async laden() {
         for (const k of Object.keys(cache)) delete cache[k];
         const t = Date.now();
-        await Promise.all(['werte', 'verlauf'].map(async (id) => {
+        await Promise.all(['werte', 'verlauf', 'nachrichten', 'makro'].map(async (id) => {
           try {
             const r = await fetch(`data/${id}.json?t=${t}`, { cache: 'no-store' });
             if (!r.ok) throw new Error(r.status);
@@ -505,7 +606,15 @@
         hide() { t.hidden = true; }
       };
     }
-    return { pct, num, kurz, tage, datum, tip, zeitraum: 'jahr_pct', wahl: null };
+    const kern = (r) => (r.gruppe === 'Watchlist' || r.gruppe === 'Baustein') && r.vertrauen !== 'rot';
+    const AMPEL = { gruen: ['ok', 'Daten bestätigt'], gelb: ['warn', 'Daten auffällig'], rot: ['bad', 'Daten fehlerhaft'] };
+    const ampelZelle = (r) => {
+      const td = document.createElement('td'); const a = AMPEL[r.vertrauen];
+      if (!a) { td.textContent = '—'; return td; }
+      const c = document.createElement('span'); c.className = 'bk-chip ' + a[0]; c.textContent = r.vertrauen === 'gruen' ? 'geprüft' : r.vertrauen === 'gelb' ? 'prüfen' : 'Fehler';
+      c.title = (r.vertrauen_gruende || []).join(' '); td.append(c); return td;
+    };
+    return { pct, num, kurz, tage, datum, tip, kern, AMPEL, ampelZelle, zeitraum: 'jahr_pct', wahl: null };
   })();
 
   document.querySelectorAll('.bk-legend .bk-k1').forEach((e) => e.style.setProperty('--bk-sw', dash.colors[0]));
@@ -515,7 +624,7 @@
     description: 'Wie viele Werte über der 200-Tage-Linie liegen, wie viele neue Signale und Hinweise es gibt.',
     inputs: ['werte', 'hinweise'],
     fn: (werte, hinweise) => {
-      const ok = werte.filter((w) => !w.fehler);
+      const ok = werte.filter((w) => !w.fehler && BK.kern(w));
       return [{
         investiert: ok.filter((w) => w.signal === 'investiert').length,
         gesamt: ok.length,
@@ -531,7 +640,11 @@
     inputs: ['werte'],
     fn: (werte) => {
       const out = [];
-      for (const w of werte) {
+      for (const w of werte.filter((x) => (x.gruppe === 'Watchlist' || x.gruppe === 'Baustein') && (x.vertrauen === 'gelb' || x.vertrauen === 'rot'))) {
+        out.push({ isin: w.isin, name: w.name, art: w.vertrauen === 'rot' ? 'Datenfehler' : 'Daten prüfen', stufe: w.vertrauen === 'rot' ? 'bad' : 'warn', wert: null,
+          text: (w.vertrauen_gruende || []).join(' ') + (w.vertrauen === 'rot' ? ' Dieser Wert fließt in keine Auswertung ein.' : '') });
+      }
+      for (const w of werte.filter(BK.kern)) {
         if (w.fehler) { out.push({ isin: w.isin, name: w.name, art: 'Datenfehler', stufe: 'bad', wert: null, text: 'Keine Kursdaten: ' + w.fehler }); continue; }
         const krypto = /USDT$/.test(w.ticker);
         const geldmarkt = /Overnight|Geldmarkt|Money Market/i.test(w.name + ' ' + (w.rolle || ''));
@@ -608,15 +721,23 @@
       const t = document.createElement('div'); t.className = 'bk-what'; t.textContent = 'Keine neuen Signale und nichts Auffälliges. Kein Anlass zum Handeln.';
       li.append(c, t); el.replaceChildren(li); return;
     }
-    el.replaceChildren(...h.data.map((a, i) => {
-      const li = document.createElement('li'); li.className = 'bk-alert';
-      const c = document.createElement('span'); c.className = 'bk-chip ' + a.stufe; c.textContent = a.art;
-      const t = document.createElement('div'); t.className = 'bk-what';
-      const n = document.createElement('b'); n.textContent = BK.kurz(a.name);
-      const s = document.createElement('span'); s.textContent = a.text;
-      const isin = document.createElement('span'); isin.className = 'bk-isin'; isin.textContent = 'ISIN ' + a.isin;
-      t.append(n, s, isin);
-      li.append(c, t); return li;
+    // Ein Wert, eine Karte: alle Hinweise zu einem Wert zusammengefasst
+    const gruppen = [];
+    h.data.forEach((a) => { let g = gruppen.find((x) => x.isin === a.isin); if (!g) { g = { isin: a.isin, name: a.name, punkte: [] }; gruppen.push(g); } g.punkte.push(a); });
+    el.replaceChildren(...gruppen.map((g) => {
+      const li = document.createElement('li'); li.className = 'bk-alert bk-alert-g';
+      const kopf = document.createElement('div'); kopf.className = 'bk-what';
+      const n = document.createElement('b'); n.textContent = BK.kurz(g.name);
+      const isin = document.createElement('span'); isin.className = 'bk-isin'; isin.textContent = 'ISIN ' + g.isin;
+      kopf.append(n, isin);
+      const ul = document.createElement('ul'); ul.className = 'bk-punkte';
+      g.punkte.forEach((a) => {
+        const p = document.createElement('li');
+        const c = document.createElement('span'); c.className = 'bk-chip ' + a.stufe; c.textContent = a.art;
+        const t = document.createElement('span'); t.textContent = a.text;
+        p.append(c, t); ul.append(p);
+      });
+      li.append(kopf, ul); return li;
     }));
   });
 
@@ -631,7 +752,7 @@
     const w = dash.data('werte');
     if (w.status !== 'ok') { el.replaceChildren(document.createTextNode(w.status === 'error' ? 'Konnte nicht geladen werden' : '—')); return; }
     const f = BK.zeitraum;
-    const rows = w.data.filter((r) => !r.fehler && r[f] != null).slice().sort((a, b) => b[f] - a[f]);
+    const rows = w.data.filter((r) => !r.fehler && BK.kern(r) && r[f] != null).slice().sort((a, b) => b[f] - a[f]);
     const W = Math.max(280, el.clientWidth), bar = 22, gap = 10;
     const svg = d3.create('svg').attr('viewBox', `0 0 ${W} 10`).attr('role', 'img')
       .attr('aria-label', 'Kursveränderung je Wert im gewählten Zeitraum');
@@ -657,8 +778,8 @@
       const v = r[f], xa = x(Math.min(0, v)), xb = x(Math.max(0, v));
       svg.append('rect').attr('x', xa).attr('y', y + top).attr('width', Math.max(1, xb - xa)).attr('height', bar).attr('rx', 3)
         .style('fill', v >= 0 ? 'var(--color-ok)' : 'var(--color-bad)')
-        .on('pointerenter pointermove', (ev) => { const [mx, my] = d3.pointer(ev, el); tip.show([[BK.kurz(r.name), ''], ['', BK.pct(v) + ' (' + (r.waehrung || '') + ')'], ['', 'ISIN ' + r.isin]], mx, my); })
-        .on('pointerleave', () => tip.hide());
+        .on('pointerdown pointerenter pointermove', (ev) => { const [mx, my] = d3.pointer(ev, el); tip.show([[BK.kurz(r.name), ''], ['', BK.pct(v) + ' (' + (r.waehrung || '') + ')'], ['', 'ISIN ' + r.isin]], mx, my); })
+        .on('pointerleave', (ev) => { if (ev.pointerType !== 'touch') tip.hide(); });
       svg.append('text').attr('x', v >= 0 ? xb + 6 : xa - 6).attr('y', y + top + bar / 2 + 4).attr('text-anchor', v >= 0 ? 'start' : 'end')
         .style('fill', 'var(--color-fg)').text(vals[i]);
     });
@@ -674,7 +795,7 @@
       const name = td(BK.kurz(r.name), 'bk-name');
       if (r.rolle) { const s = document.createElement('span'); s.className = 'bk-role'; s.textContent = r.rolle; name.append(s); }
       if (r.fehler) {
-        const c = td('keine Daten'); c.colSpan = 9; c.style.textAlign = 'left';
+        const c = td('keine Daten'); c.colSpan = 10; c.style.textAlign = 'left';
         tr.append(name, td(r.isin), c); return tr;
       }
       const sig = document.createElement('td');
@@ -682,7 +803,7 @@
       chip.textContent = r.signal + (r.neu ? ' (neu)' : ''); sig.append(chip);
       const p = (v) => td(BK.pct(v), v == null ? '' : v >= 0 ? 'pos' : 'neg');
       tr.append(name, td(r.isin), sig, td(BK.num(r.kurs) + ' ' + (r.waehrung === 'EUR' ? '€' : r.waehrung === 'USD' ? '$' : (r.waehrung || ''))),
-        p(r.tag_pct), p(r.monat_pct), p(r.quartal_pct), p(r.ytd_pct), p(r.jahr_pct), td(BK.pct(r.abstand_pct)), td(BK.num(r.rsi14, 1)));
+        p(r.tag_pct), p(r.monat_pct), p(r.quartal_pct), p(r.ytd_pct), p(r.jahr_pct), td(BK.pct(r.abstand_pct)), td(BK.num(r.rsi14, 1)), BK.ampelZelle(r));
       return tr;
     }));
   }
@@ -692,7 +813,7 @@
   dash.draw('tab-test', (el) => {
     const w = dash.data('werte');
     if (w.status !== 'ok') { el.replaceChildren(); return; }
-    el.replaceChildren(...w.data.filter((r) => !r.fehler).map((r) => {
+    el.replaceChildren(...w.data.filter((r) => !r.fehler && BK.kern(r)).map((r) => {
       const tr = document.createElement('tr'); tr.dataset.key = r.isin;
       const td = (txt, cls) => { const c = document.createElement('td'); c.textContent = txt; if (cls) c.className = cls; return c; };
       const besser = r.regel_pa > r.halten_pa;
@@ -749,14 +870,14 @@
     const tip = BK.tip(el);
     const bis = d3.bisector((p) => p.d).center;
     svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
-      .on('pointerenter pointermove', (ev) => {
+      .on('pointerdown pointerenter pointermove', (ev) => {
         const [mx] = d3.pointer(ev); const p = pts[bis(pts, x.invert(mx))];
         cur.attr('x1', x(p.d)).attr('x2', x(p.d)).style('display', null);
         dot.attr('cx', x(p.d)).attr('cy', y(p.k)).style('display', null);
         const [ex, ey] = d3.pointer(ev, el);
         tip.show([[d3.utcFormat('%d.%m.%Y')(p.d), ''], ['Kurs', BK.num(p.k) + ' ' + (info.waehrung || '')], ['Linie', p.s == null ? '—' : BK.num(p.s) + ' ' + (info.waehrung || '')]], ex, ey);
       })
-      .on('pointerleave', () => { cur.style('display', 'none'); dot.style('display', 'none'); tip.hide(); });
+      .on('pointerleave', (ev) => { if (ev.pointerType === 'touch') return; cur.style('display', 'none'); dot.style('display', 'none'); tip.hide(); });
   });
 
 
@@ -768,7 +889,17 @@
     let kaeufe = lesen(KEY, []);
     let st = lesen(SKEY, { pausch: 1000, kirche: 0, satz: 30 });
     const eur = (v) => (v == null || isNaN(v)) ? '—' : d3.formatLocale({ decimal: ',', thousands: '.', grouping: [3], currency: ['', ' €'] }).format('$,.2f')(v).replace('-', '−');
-    const TF = { 'Aktien-ETF': 0.3, 'Mischfonds': 0.15, 'Sonstiger Fonds': 0, 'Aktie': 0, 'Krypto': 0 };
+    // Zahl aus Eingabe: "2,5", "1.234,56", "0.01" und "1 000" werden richtig gelesen.
+    const zahl = (txt) => {
+      let t = String(txt ?? '').trim().replace(/\s/g, '').replace('€', '');
+      if (!t) return NaN;
+      if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+      else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+      return /^-?\d*\.?\d+$/.test(t) ? parseFloat(t) : NaN;
+    };
+    const deZahl = (v) => v == null || isNaN(v) ? '' : String(v).replace('.', ',');
+    const TF = { 'Aktien-ETF': 0.3, 'Mischfonds': 0.15, 'Sonstiger Fonds': 0, 'Aktie': 0, 'Krypto': 0, 'Gold-ETC': 0 };
+    const P23 = (art) => art === 'Krypto' || art === 'Gold-ETC';
     const abgeltung = () => { const k = +st.kirche || 0; const a = 0.25 / (1 + 0.25 * k); return a * (1 + 0.055 + k); };
 
     function rechnen() {
@@ -786,7 +917,7 @@
         return { ...k, name: r.name || k.name || k.isin, kurs, einstand, wert, gewinn, tage, frei };
       });
       // Wertpapiere: Teilfreistellung, Verrechnung, Pauschbetrag
-      const wp = pos.filter((p) => p.art !== 'Krypto' && p.gewinn != null);
+      const wp = pos.filter((p) => !P23(p.art) && p.gewinn != null);
       wp.forEach((p) => { p.stpfl = p.gewinn * (1 - (TF[p.art] ?? 0)); });
       const summeStpfl = wp.reduce((a, p) => a + p.stpfl, 0);
       const basis = Math.max(0, summeStpfl - (+st.pausch || 0));
@@ -794,7 +925,7 @@
       const posStpfl = wp.reduce((a, p) => a + Math.max(0, p.stpfl), 0);
       wp.forEach((p) => { p.steuer = p.stpfl > 0 && posStpfl > 0 ? steuerWp * p.stpfl / posStpfl : 0; });
       // Krypto: Haltefrist und Freigrenze
-      const kr = pos.filter((p) => p.art === 'Krypto' && p.gewinn != null);
+      const kr = pos.filter((p) => P23(p.art) && p.gewinn != null);
       const kurzfristig = kr.filter((p) => p.tage <= 365);
       const kurzGewinn = kurzfristig.reduce((a, p) => a + p.gewinn, 0);
       const satz = (+st.satz || 0) / 100 * 1.055;
@@ -849,7 +980,7 @@
       if (!r) return;
       document.getElementById('kauf-art').value = r.fondsart || 'Aktien-ETF';
       const k = document.getElementById('kauf-kurs');
-      if (kursAuch || !k.value) k.value = r.kurs_eur ?? '';
+      if (kursAuch || !k.value) k.value = deZahl(r.kurs_eur);
     }
 
     function start() {
@@ -861,9 +992,11 @@
         const isin = document.getElementById('kauf-wert').value;
         const r = (dash.data('werte').data || []).find((x) => x.isin === isin) || {};
         const k = { id: Date.now().toString(36), isin, name: r.name, datum: document.getElementById('kauf-datum').value,
-          stueck: +document.getElementById('kauf-stueck').value, kurs: +document.getElementById('kauf-kurs').value,
-          gebuehr: +document.getElementById('kauf-gebuehr').value || 0, art: document.getElementById('kauf-art').value };
-        if (!k.isin || !k.datum || !(k.stueck > 0) || !(k.kurs > 0)) return;
+          stueck: zahl(document.getElementById('kauf-stueck').value), kurs: zahl(document.getElementById('kauf-kurs').value),
+          gebuehr: zahl(document.getElementById('kauf-gebuehr').value) || 0, art: document.getElementById('kauf-art').value };
+        if (!k.isin || !k.datum) { meldung('Bitte Wert und Kaufdatum angeben.'); return; }
+        if (!(k.stueck > 0)) { meldung('Die Stückzahl ist keine gültige Zahl. Beispiel: 2,5'); return; }
+        if (!(k.kurs > 0)) { meldung('Der Kaufkurs ist keine gültige Zahl. Beispiel: 100,50'); return; }
         kaeufe.push(k);
         const ok = schreiben(KEY, kaeufe);
         document.getElementById('kauf-stueck').value = '';
@@ -873,11 +1006,14 @@
       const sf = document.getElementById('steuer-form');
       document.getElementById('st-pausch').value = String(st.pausch);
       document.getElementById('st-kirche').value = String(st.kirche);
-      document.getElementById('st-satz').value = String(st.satz);
-      sf.addEventListener('input', () => {
-        st = { pausch: +document.getElementById('st-pausch').value, kirche: +document.getElementById('st-kirche').value, satz: +document.getElementById('st-satz').value };
+      document.getElementById('st-satz').value = deZahl(st.satz);
+      const steuerNeu = () => {
+        const satz = zahl(document.getElementById('st-satz').value);
+        st = { pausch: +document.getElementById('st-pausch').value, kirche: +document.getElementById('st-kirche').value, satz: isNaN(satz) ? st.satz : Math.min(45, Math.max(0, satz)) };
         schreiben(SKEY, st); zeichnen();
-      });
+      };
+      sf.addEventListener('input', steuerNeu);
+      sf.addEventListener('change', steuerNeu);
       sf.addEventListener('submit', (e) => e.preventDefault());
       document.getElementById('depot-export').addEventListener('click', async () => {
         const text = JSON.stringify({ kaeufe, steuer: st });
@@ -896,16 +1032,196 @@
         } catch (e) { meldung('Das sieht nicht nach gesicherten BroKer-Käufen aus. Bitte den kompletten kopierten Text einfügen.'); }
       });
     }
-    const meldung = (t) => { document.getElementById('depot-meldung').textContent = t; };
+    const meldung = (t) => { ['depot-meldung', 'kauf-meldung'].forEach((id) => { const e = document.getElementById(id); if (e) e.textContent = t; }); };
     return { start, zeichnen };
   })();
 
+  // ---------- Prüfen & Entdecken ----------
+  const ENTDECKEN = (() => {
+    const WF = (document.querySelector('.bk-actions a.bk-btn') || {}).href || '';
+    let sortierung = 'risiko';
+    const RANG = { 'sehr gering': 0, 'gering': 1, 'mittel': 2, 'hoch': 3, 'sehr hoch': 4 };
+    // Prüfziffer nach ISO 6166: Buchstaben zu Zahlen, dann Luhn-Verfahren
+    const gueltig = (isin) => {
+      if (!/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(isin)) return false;
+      const z = isin.slice(0, 11).split('').map((c) => parseInt(c, 36)).join('');
+      let summe = 0;
+      z.split('').reverse().forEach((d, i) => { let n = +d; if (i % 2 === 0) { n *= 2; if (n > 9) n -= 9; } summe += n; });
+      return (10 - (summe % 10)) % 10 === +isin[11];
+    };
+    const status = (t, fehler) => { const e = document.getElementById('pruef-status'); e.textContent = t; e.style.color = fehler ? 'var(--color-bad)' : ''; };
+    async function kopieren(text) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) { return false; }
+    }
+    async function zuGithub(isin, feld, wasPassiert) {
+      const ok = await kopieren(isin);
+      status((ok ? 'ISIN ' + isin + ' kopiert. ' : 'ISIN: ' + isin + ' (bitte von Hand kopieren). ') +
+        'Auf GitHub: "Run workflow" tippen, die ISIN ins Feld "' + feld + '" einfügen und "Run workflow" bestätigen. ' + wasPassiert);
+      document.getElementById('pruef-status').scrollIntoView({ block: 'center' });
+      window.open(WF, '_blank', 'noopener');
+    }
+    const btn = (text, fn, ghost = true) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'bk-btn' + (ghost ? ' ghost' : ''); b.textContent = text; b.addEventListener('click', fn); return b; };
+    function karte(r) {
+      const c = document.createElement('article'); c.className = 'bk-card';
+      const h = document.createElement('h4'); h.textContent = BK.kurz(r.name);
+      const m = document.createElement('div'); m.className = 'bk-meta';
+      const isin = document.createElement('span'); isin.className = 'bk-isin-sel'; isin.textContent = r.isin;
+      m.append('ISIN ', isin, r.kategorie ? ' · ' + r.kategorie : '');
+      c.append(h, m);
+      if (r.fehler) { const p = document.createElement('p'); p.className = 'bk-note'; p.textContent = 'Keine Kursdaten: ' + r.fehler; c.append(p); return c; }
+      const chips = document.createElement('div'); chips.className = 'bk-chips';
+      const chip = (t, k) => { const e = document.createElement('span'); e.className = 'bk-chip ' + k; e.textContent = t; return e; };
+      chips.append(chip(r.signal === 'investiert' ? 'Trend aufwärts' : 'Trend abwärts', r.signal === 'investiert' ? 'ok' : 'warn'));
+      if (r.risiko) chips.append(chip('Risiko ' + r.risiko, RANG[r.risiko] >= 3 ? 'bad' : RANG[r.risiko] === 2 ? 'warn' : 'ok'));
+      if (BK.AMPEL[r.vertrauen]) chips.append(chip(BK.AMPEL[r.vertrauen][1], BK.AMPEL[r.vertrauen][0]));
+      if (r.gruppe === 'Watchlist') chips.append(chip('in deiner Watchlist', 'info'));
+      if (r.gruppe === 'Baustein') chips.append(chip('Baustein', 'info'));
+      c.append(chips);
+      const kz = document.createElement('div'); kz.className = 'bk-kz';
+      const feld = (k, v, cls) => { const d = document.createElement('div'); const a = document.createElement('span'); a.textContent = k; const b = document.createElement('span'); b.textContent = v; if (cls) b.className = cls; d.append(a, b); return d; };
+      const farbe = (v) => v == null ? '' : v >= 0 ? 'pos' : 'neg';
+      kz.append(feld('Kurs', BK.num(r.kurs) + ' ' + (r.waehrung === 'EUR' ? '€' : r.waehrung || '')),
+        feld('12 Monate', BK.pct(r.jahr_pct), farbe(r.jahr_pct)),
+        feld('3 Jahre pro Jahr', BK.pct(r.rendite_3j_pa), farbe(r.rendite_3j_pa)),
+        feld('5 Jahre pro Jahr', BK.pct(r.rendite_5j_pa), farbe(r.rendite_5j_pa)),
+        feld('Schwankung pro Jahr', r.vola_pa == null ? '—' : BK.num(r.vola_pa, 1) + ' %'),
+        feld('Größter Rückgang 5 J.', BK.pct(r.dd_5j), 'neg'));
+      c.append(kz);
+      if (r.einordnung && r.einordnung.length) { const ul = document.createElement('ul'); r.einordnung.forEach((t) => { const li = document.createElement('li'); li.textContent = t; ul.append(li); }); c.append(ul); }
+      if (r.vertrauen_gruende && r.vertrauen_gruende.length) { const d = document.createElement('p'); d.className = 'bk-meta'; d.textContent = 'Datencheck: ' + r.vertrauen_gruende.join(' '); c.append(d); }
+      const akt = document.createElement('div'); akt.className = 'bk-actions';
+      akt.append(btn('Kursverlauf', () => { BK.wahl = r.isin; dash.draw('wahl'); dash.draw('kurs'); document.getElementById('verlauf').scrollIntoView({ block: 'start' }); }));
+      akt.append(btn('Kauf eintragen', () => { const sel = document.getElementById('kauf-wert'); sel.value = r.isin; sel.dispatchEvent(new Event('change')); const d = document.querySelector('#depot details'); if (d) d.open = true; document.getElementById('kauf-form').scrollIntoView({ block: 'center' }); }));
+      if (r.gruppe !== 'Watchlist' && r.gruppe !== 'Baustein') akt.append(btn('In Watchlist', () => zuGithub(r.isin, 'isin', 'Danach erscheint der Wert in deiner Watchlist.')));
+      if (r.gruppe === 'Prüfung') akt.append(btn('Entfernen', () => zuGithub(r.isin, 'entfernen', 'Danach verschwindet der Wert aus deinen Prüfungen.')));
+      c.append(akt);
+      return c;
+    }
+    function zeichnen() {
+      const w = dash.data('werte'); const rows = w.status === 'ok' ? w.data : [];
+      const pr = rows.filter((r) => r.gruppe === 'Prüfung');
+      document.getElementById('pruef-liste').replaceChildren(...pr.map(karte));
+      document.getElementById('pruef-leer').hidden = pr.length > 0;
+      const k = rows.filter((r) => r.gruppe === 'Kandidat').slice();
+      const v = (x, f, d) => x[f] == null ? d : x[f];
+      if (sortierung === 'risiko') k.sort((a, b) => (RANG[a.risiko] ?? 9) - (RANG[b.risiko] ?? 9) || v(a, 'vola_pa', 99) - v(b, 'vola_pa', 99));
+      if (sortierung === 'rendite') k.sort((a, b) => v(b, 'rendite_5j_pa', -99) - v(a, 'rendite_5j_pa', -99));
+      if (sortierung === 'trend') k.sort((a, b) => (a.signal === 'investiert' ? 0 : 1) - (b.signal === 'investiert' ? 0 : 1) || v(b, 'abstand_pct', -99) - v(a, 'abstand_pct', -99));
+      document.getElementById('kand-liste').replaceChildren(...k.map(karte));
+    }
+    function pruefen(ev) {
+      if (ev) ev.preventDefault();
+      const feld = document.getElementById('pruef-isin');
+      const isin = feld.value.replace(/[\s-]/g, '').toUpperCase();
+      feld.value = isin;
+      const erg = document.getElementById('pruef-ergebnis'); erg.replaceChildren();
+      if (!isin) { status('Bitte eine ISIN eingeben.', true); return; }
+      if (isin === 'BTC' || isin === 'ETH') { status('Krypto hat keine ISIN. Bitcoin und Ethereum stehen bereits in deiner Watchlist.'); return; }
+      if (!gueltig(isin)) {
+        feld.setAttribute('aria-invalid', 'true');
+        status(isin.length !== 12 ? 'Eine ISIN hat genau 12 Zeichen, deine hat ' + isin.length + '.' : 'Diese ISIN ist ungültig: Die Prüfziffer passt nicht. Wahrscheinlich ein Tippfehler.', true);
+        return;
+      }
+      feld.removeAttribute('aria-invalid');
+      const r = (dash.data('werte').data || []).find((x) => x.isin === isin);
+      if (r) { status('Gültige ISIN. BroKer kennt diesen Wert schon, hier ist die Analyse:'); erg.append(karte(r)); return; }
+      status('Gültige ISIN. Für die Analyse muss BroKer die Kurse einmal laden.');
+      erg.append(btn('Bei GitHub prüfen lassen', () => zuGithub(isin, 'pruefen', 'Nach etwa 2 Minuten steht die Analyse unter "Deine Prüfungen".'), false));
+    }
+    function start() {
+      document.getElementById('pruef-form').addEventListener('submit', pruefen);
+      document.getElementById('pruef-isin').addEventListener('input', (e) => { e.target.removeAttribute('aria-invalid'); });
+      document.querySelectorAll('button[data-sort]').forEach((b) => b.addEventListener('click', () => {
+        sortierung = b.dataset.sort;
+        document.querySelectorAll('button[data-sort]').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+        zeichnen();
+      }));
+    }
+    return { start, zeichnen, gueltig };
+  })();
+
+
+  // Leiste zeigt, wo man gerade ist, und rollt den Eintrag ins Bild
+  (() => {
+    const links = [...document.querySelectorAll('.bk-nav a[data-ziel]')];
+    const ziele = links.map((a) => document.getElementById(a.dataset.ziel)).filter(Boolean);
+    let aktiv = null;
+    const markiere = () => {
+      let akt = ziele[0];
+      for (const z of ziele) if (z.getBoundingClientRect().top < 120) akt = z;
+      if (akt === aktiv) return; aktiv = akt;
+      links.forEach((a) => {
+        const an = a.dataset.ziel === akt.id; a.setAttribute('aria-current', an ? 'true' : 'false');
+        if (an) a.parentElement.scrollTo({ left: a.offsetLeft - 16, behavior: 'smooth' });
+      });
+    };
+    addEventListener('scroll', markiere, { passive: true }); markiere();
+  })();
+
+  // ---------- Wirtschaftslage, Nachrichten, Datenampel gesamt ----------
+  const LAGE = (() => {
+    const de = (v, n) => v == null ? '—' : Number(v).toLocaleString('de-DE', { minimumFractionDigits: n, maximumFractionDigits: n });
+    const datumDe = (s) => { if (!s) return ''; const d = new Date(s.length <= 10 ? s + 'T00:00:00' : s); return isNaN(d) ? s : d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }); };
+    function makro() {
+      const box = document.getElementById('makro'); const m = dash.data('makro');
+      if (m.status !== 'ok' || !m.data.length) {
+        const p = document.createElement('p'); p.className = 'bk-note';
+        p.textContent = m.status === 'loading' ? 'Lade ...' : 'Offizielle Daten derzeit nicht verfügbar. Sie erscheinen nach dem nächsten Lauf.';
+        box.replaceChildren(p); return;
+      }
+      box.replaceChildren(...m.data.map((r) => {
+        const d = document.createElement('details'); const s = document.createElement('summary');
+        const k = document.createElement('span'); k.className = 'bk-k'; k.textContent = r.kennzahl;
+        const v = document.createElement('span'); v.className = 'bk-mw'; v.textContent = r.einheit === '$' ? de(r.wert, 4) + ' $' : de(r.wert, 2) + ' ' + r.einheit;
+        const q = document.createElement('span'); q.className = 'bk-q'; q.textContent = r.quelle + ', ' + datumDe(r.datum);
+        s.append(k, v, q);
+        const e = document.createElement('p'); e.textContent = r.erklaerung + (r.gegenprobe ? ' ' + r.gegenprobe : '');
+        d.append(s, e); return d;
+      }));
+    }
+    function meldung(n, werte) {
+      const li = document.createElement('li');
+      const dz = document.createElement('span'); dz.className = 'bk-dz'; dz.textContent = [datumDe(n.datum), n.dachzeile, n.quelle].filter(Boolean).join(' · ');
+      const a = document.createElement('a'); a.href = n.link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = n.titel;
+      li.append(dz, a);
+      if (n.satz) { const p = document.createElement('span'); p.className = 'bk-satz'; p.textContent = n.satz; li.append(p); }
+      if (n.themen && n.themen.length) { const c = document.createElement('div'); c.className = 'bk-chips'; n.themen.forEach((t) => { const x = document.createElement('span'); x.className = 'bk-chip info'; x.textContent = t; c.append(x); }); li.append(c); }
+      const betrifft = (n.isins || []).map((i) => werte[i]).filter(Boolean);
+      if (betrifft.length) { const w = document.createElement('span'); w.className = 'bk-wer'; w.textContent = 'Betrifft: ' + betrifft.slice(0, 4).map((r) => BK.kurz(r.name)).join(', ') + (betrifft.length > 4 ? ' und ' + (betrifft.length - 4) + ' weitere' : ''); li.append(w); }
+      return li;
+    }
+    function nachrichten() {
+      const n = dash.data('nachrichten'); const w = dash.data('werte');
+      const liste = document.getElementById('news-liste'); const alle = document.getElementById('news-alle');
+      if (n.status !== 'ok') {
+        const li = document.createElement('li'); li.textContent = n.status === 'loading' ? 'Lade ...' : 'Nachrichten derzeit nicht verfügbar.';
+        liste.replaceChildren(li); alle.replaceChildren(); return;
+      }
+      // Eigene Werte (Watchlist, Prüfungen) zuerst, dann Bausteine; Vorschläge zählen nicht
+      const werte = {}; (w.data || []).forEach((r) => { werte[r.isin] = r; });
+      const eigen = (x) => (x.isins || []).some((i) => werte[i] && ['Watchlist', 'Prüfung', 'Baustein'].includes(werte[i].gruppe));
+      const passend = n.data.filter(eigen).map((x) => ({ ...x, isins: x.isins.filter((i) => werte[i] && werte[i].gruppe !== 'Kandidat') }));
+      liste.replaceChildren(...(passend.length ? passend.slice(0, 8).map((x) => meldung(x, werte)) : [Object.assign(document.createElement('li'), { textContent: 'Heute keine Meldung, die deine Werte betrifft.' })]));
+      alle.replaceChildren(...n.data.map((x) => meldung(x, werte)));
+    }
+    function vertrauenGesamt() {
+      const chip = document.getElementById('vertrauen-chip'); const w = dash.data('werte');
+      if (w.status !== 'ok') { chip.textContent = '—'; return; }
+      const rows = w.data.filter((r) => r.vertrauen);
+      const gruen = rows.filter((r) => r.vertrauen === 'gruen').length, rot = rows.filter((r) => r.vertrauen === 'rot').length;
+      chip.textContent = 'Datencheck: ' + gruen + ' von ' + rows.length + ' bestätigt';
+      chip.className = 'bk-chip ' + (rot ? 'bad' : gruen === rows.length ? 'ok' : 'warn');
+    }
+    return { zeichnen() { makro(); nachrichten(); vertrauenGesamt(); } };
+  })();
+
   DEPOT.start();
-  dash.laden().then(() => DEPOT.zeichnen());
+  ENTDECKEN.start();
+  dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); LAGE.zeichnen(); });
   let breite = innerWidth;
   addEventListener('resize', () => { if (Math.abs(innerWidth - breite) > 20) { breite = innerWidth; dash.alles(); } });
-  document.getElementById('neu-laden').addEventListener('click', () => dash.laden().then(() => DEPOT.zeichnen()));
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') dash.laden().then(() => DEPOT.zeichnen()); });
+  document.getElementById('neu-laden').addEventListener('click', () => dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); LAGE.zeichnen(); }));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') dash.laden().then(() => { DEPOT.zeichnen(); ENTDECKEN.zeichnen(); LAGE.zeichnen(); }); });
 
 </script>
 </body>
